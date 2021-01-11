@@ -7,7 +7,6 @@ class CreateRoute extends React.Component {
         super(props)
         this.state = {
             newRouteNumber: null,
-            newRoute: [],
             numberStops: 1,
             customersData: null
         }
@@ -18,7 +17,7 @@ class CreateRoute extends React.Component {
 
     getCustomersData = () => {
         console.log('getcustoemrsdata running');
-        const url = "http://localhost:8000/getCustomersData";
+        const url = "https://allin1ship.herokuapp.com/getCustomersData";
         fetch(url)
         .then(response => response.json())
         .then(json => this.setState({customersData: json}))
@@ -28,7 +27,7 @@ class CreateRoute extends React.Component {
 
     getNewRouteNumber = () => {
         //fetch length of route_list and sets newRouteNumber to it + 1
-        fetch("http://localhost:8000/getRouteLength")
+        fetch("https://allin1ship.herokuapp.com/getRouteLength")
         .then(response => response.json())
         .then(json => this.setState({newRouteNumber: json.[0]["COUNT(*)"] + 1}))
         .then(() => console.log(this.state))
@@ -45,22 +44,22 @@ class CreateRoute extends React.Component {
 
     createNewRoute = () => {
         //get server endpoint that jusst creates new row in route_list
-        fetch("http://localhost:8000/createNewRouteList")
-        .then(response => console.log('new route list created'))
+        fetch("https://allin1ship.herokuapp.com/createNewRouteList")
+        .then(response => console.log('new route list created', response.json()))
         .catch(err => console.log(err))
     }
 
     postNewStop = (i) => {
-        console.log('postnewstop running, i:', i, document.getElementById(`notes${i}`).value);
-        
+        console.log('postnewstop running, i:', i, document.getElementById(`stopNumber${i}`).innerText)
+
         const stopData = {
             route_id: this.state.newRouteNumber,
-            stop_number: i,
-            customer_id: 2,/* ??? how to get customer_id... document.getElementById(`customerselect${i}`).selectElement.options[document.getElementById(`customerselect${i}`).selectedIndex].value,*/
+            stop_number: document.getElementById(`stopNumber${i}`).innerText,
+            customer_id: 2,/* ****!!!!!!!??? how to get customer_id... document.getElementById(`customerselect${i}`).selectElement.options[document.getElementById(`customerselect${i}`).selectedIndex].value,*/
             notes: document.getElementById(`notes${i}`).value
         }
         console.log(JSON.stringify(stopData));
-        fetch("http://192.168.1.137:8000/postNewRoute", {
+        fetch("https://allin1ship.herokuapp.com/postNewRoute", {
             method: "POST",  
             headers: {
                 "Content-Type": "application/json"},
@@ -106,7 +105,7 @@ class CreateRoute extends React.Component {
         this.setStops();
         console.log(this.state);
         document.getElementById('tbl').innerHTML += `<tr>
-            <td>${this.state.numberStops + 1}</td>
+            <td contentEditable="true" id=${`stopNumber${this.state.numberStops+1}`}>${this.state.numberStops + 1}</td>
             <td ><select name='customer' id=${`customerselect${this.state.numberStops + 1}`}>${this.customersList()}</select></td> 
             <td><input type="text" name="notes" id=${`notes${this.state.numberStops+1}`} /></td>   
         </tr>
@@ -117,11 +116,10 @@ class CreateRoute extends React.Component {
     render() {
         
         return <div>
-            Create Route Page
             <p> ROUTE # {this.state.newRouteNumber}</p>
            <form id='route-form' onSubmit={this.handleSubmit}>
-                <button type='button' onClick={this.handleAddStop}>Add Stop</button> <br/>
-                <br/> <button type='submit'>Submit Route</button>
+               {/* <button type='button' onClick={this.handleAddStop}>Add Stop</button> <br/> */}
+                <br/> <button type='submit'>Submit Stop</button>
                 {/*<div>
                     <span>{this.state.numberStops}</span>
                     <select>{() => this.customersList}</select>
@@ -137,7 +135,7 @@ class CreateRoute extends React.Component {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1</td>
+                            <td contentEditable="true" id='stopNumber1'>1</td>
                             <td id='customerselect1'><select name='customer' >{this.customersList()}</select></td> 
                             <td><input type="text" name="notes" id='notes1' /></td>   
                             {/*<td><input type="submit" className="button" value="Add another line" onClick={() => console.log('add another line button clicked')} /></td>     */}     

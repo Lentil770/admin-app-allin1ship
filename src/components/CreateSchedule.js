@@ -19,7 +19,8 @@ class CreateSchedule extends React.Component {
     }
 
     getRouteData = () => {
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + this.state.selectedRoute;
+        this.setState({routeData: null})
+        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
         fetch(url)
         .then(response => response.json())
         .then(json => this.setState({routeData: json}))
@@ -51,7 +52,6 @@ class CreateSchedule extends React.Component {
         this.getVehicles()
         this.getDrivers()
         this.getRoutes()
-        this.getRouteData()
     }
 
     handleSubmit = (e) => {
@@ -64,7 +64,7 @@ class CreateSchedule extends React.Component {
             selectedDropOffInfo: this.state.selectedDropOffInfo
         }
         console.log('handlesubmit', JSON.stringify(postData));
-        fetch("http://192.168.1.137:8000/postSchedule", {
+        fetch("https://allin1ship.herokuapp.com/postSchedule", {
             method: "POST",  
             headers: {
                 "Content-Type": "application/json"},
@@ -105,7 +105,7 @@ class CreateSchedule extends React.Component {
             }
         
             console.log(commentsObj);
-            fetch(`http://192.168.1.137:8000/postChangedComments/${this.state.selectedRoute}`, {
+            fetch(`https://allin1ship.herokuapp.com/postChangedComments/${this.state.selectedRoute}`, {
                 method: "POST",  
                 headers: {
                     "Content-Type": "application/json"},
@@ -135,6 +135,7 @@ class CreateSchedule extends React.Component {
 }*/
 
     handleRouteChange = (e) => {
+        console.log(document.getElementById("selectRoute").value)
         this.setState({selectedRoute: e.target.value})
         this.getRouteData()
     }
@@ -181,35 +182,33 @@ class CreateSchedule extends React.Component {
         return <div>            
              <main className='CreateSchedule'>
                 <form onSubmit={this.handleSubmit}>
-                <br/><legend>Create Schedule Form</legend><br/>
-                    <label htmlFor="schedule-date">Date: yyyy-mm-dd</label><br/>
-                    <input type="date" id="schedule-date" required onChange={this.handleDateChange}/> SET DEFAULT TO TODAY!<br/><br/>
+                <br/><legend>New Schedule</legend><br/>
+                    <label htmlFor="schedule-date">Date:</label><br/>
+                    <input type="date" id="schedule-date" required onChange={this.handleDateChange}/><br/><br/>
                    
-                    DRIVER: drop down menu from fetched data<br/>
+                    DRIVER:<br/>
                     <select required onChange={this.handleDriverChange}>
                     <option value="none" selected disabled hidden> 
                         Select a Driver 
                     </option>
                         {optionsDrivers}
                     </select><br/><br/>
-                    VEHICLE: drop down menu from fetched data<br/>
+                    VEHICLE:<br/>
                     <select required onChange={this.handleVehicleChange}>
                     <option value="none" selected disabled hidden> 
                         Select a vehicle 
                     </option>
                         {optionsVehicles}
                     </select><br/><br/>
-                    DROP OFF INFO: text input box<br/>
+                    DROP OFF INFO:<br/>
                     <textarea 
                     onChange={this.handleTextChange}
-                    name='comment'>default text goes here</textarea><br/><br/>
-                    ROUTE: drop down of number for each route_id from fetched data.<br/>
-                    <select onChange={this.handleRouteChange}>
+                    name='comment'>*default text goes here*</textarea><br/><br/>
+                    ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
+                    <select id='selectRoute' onChange={this.handleRouteChange}>
+                        <option value="" selected disabled hidden>Choose Route</option>
                         {optionsRoutes}
-                    </select><br/><br/>
-                    display box of fetched route according to route selection 
-                    each stop_number, address, and an editable notes box.<br/>
-                    TABLE TO DISPLAY DATA:
+                    </select><br/>
                     <table>
                         <thead>
                             <tr><th>selected route #:{this.state.selectedRoute}</th></tr>
