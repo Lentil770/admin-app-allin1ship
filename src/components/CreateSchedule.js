@@ -5,9 +5,9 @@ class CreateSchedule extends React.Component {
     state = {
         drivers: null,
         routes: [{
-            "id": 3
+            "id": 1
         },
-           {"id": 4
+           {"id": 2
         }],
         vehicles: null,
         routeData: null,
@@ -15,7 +15,7 @@ class CreateSchedule extends React.Component {
         selectedDate: null,
         selectedDriver: null,
         selectedVehicle: null,
-        selectedDropOffInfo: 'default text goes here - CHANGE ME IN STATE',
+        selectedDropOffInfo: 'Thank you for working hard today, your work means a lot and we appreciate the extra you put in',
     }
 
     getRouteData = () => {
@@ -45,6 +45,7 @@ class CreateSchedule extends React.Component {
         fetch("https://allin1ship.herokuapp.com/getNumberRoutes")
         .then(response => response.json())
         .then(json => this.setState({routes: json}))
+        .then(e => console.log(this.state.routes))
         .catch(err => console.log(err))
     }
 
@@ -145,7 +146,7 @@ class CreateSchedule extends React.Component {
     }
 
     handleDriverChange = (e) => {
-        this.setState({selectedDriver: e.target.value})
+        e.target.value !== 'none' && this.setState({selectedDriver: e.target.value})
     }
 
     handleVehicleChange = (e) => {
@@ -162,7 +163,7 @@ class CreateSchedule extends React.Component {
             <tr>
                 <td>{stop.stop_number}</td>
                 <td>{stop.address}</td>
-                <td contentEditable="true" id={stop.address} >{stop.comments}</td> 
+                <td contentEditable="true" id={stop.address} >{stop.notes}</td> 
                 {/*<input type='text' id={stop.stop_number} defaultValue={stop.comments} onChange={() => this.handleComment}></input>*/}
                 <button type='button' onClick={() => this.handleCommentButton(stop.stop_number, document.getElementById(`${stop.address}`).innerText)}>submit comment</button>
             </tr>  
@@ -172,7 +173,7 @@ class CreateSchedule extends React.Component {
         );
 
         const optionsRoutes = this.state.routes && this.state.routes.map((route) => 
-            <option key={route.id}>{route.id}</option>
+            <option key={route.id} value={route.id}>{route.id} - {route.route_name}</option>
         );
 
         const optionsVehicles = this.state.vehicles && this.state.vehicles.map((vehicle) => 
@@ -187,23 +188,40 @@ class CreateSchedule extends React.Component {
                     <input type="date" id="schedule-date" required onChange={this.handleDateChange}/><br/><br/>
                    
                     DRIVER:<br/>
-                    <select required onChange={this.handleDriverChange}>
+                    <select onChange={this.handleDriverChange}>
                     <option value="none" selected disabled hidden> 
                         Select a Driver 
                     </option>
                         {optionsDrivers}
-                    </select><br/><br/>
+                    <option value={() => document.getElementById('new-driver').value} > 
+                        New Driver
+                    </option>
+                    </select><br/>
+                    <label htmlFor='new-driver'>new driver</label><br/>
+                    <input id='new-driver' onChange={this.handleDriverChange} ></input><br/><br/>
                     VEHICLE:<br/>
                     <select required onChange={this.handleVehicleChange}>
-                    <option value="none" selected disabled hidden> 
-                        Select a vehicle 
-                    </option>
+                        <option value="none" selected disabled hidden>
+                            Choose a Vehicle 
+                        </option>
                         {optionsVehicles}
-                    </select><br/><br/>
+                        <option value={() => document.getElementById('new-vehicle').value} > 
+                            New Vehicle
+                        </option>
+                        {/*<option value='newVehicle'>New Vehicle</option>*/}
+                    </select><br/><label htmlFor='new-vehicle'>new vehicle</label><br/>
+                    <input id='new-vehicle' onChange={this.handleVehicleChange} ></input><br/><br/>
                     DROP OFF INFO:<br/>
                     <textarea 
                     onChange={this.handleTextChange}
-                    name='comment'>*default text goes here*</textarea><br/><br/>
+                    name='comment'>Thank you for the hard work today, it is greatly appreciated.
+
+                    You’re the front line workers in our company and your hard work shows!
+                    
+                    Please park the van, near the office, if you cannot find parking you can always use the driveway at 740 Montgomery St,
+                    (The driveway is narrow so just be alert).
+                    
+                    Rest up, looking forward to seeing you at the next drive!</textarea><br/><br/>
                     ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
                     <select id='selectRoute' onChange={this.handleRouteChange}>
                         <option value="" selected disabled hidden>Choose Route</option>

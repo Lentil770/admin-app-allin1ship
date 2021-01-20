@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from "jquery";
 
 class CreateRoute extends React.Component {
     
@@ -8,12 +9,21 @@ class CreateRoute extends React.Component {
         this.state = {
             newRouteNumber: null,
             numberStops: 1,
-            customersData: null
+            customersData: null,
+            stopValue: 1,
+            customersList: (givenData) => givenData && givenData.map((customer) => 
+            <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
+            ),
+            customersListB: (givenData) => givenData && givenData.map((customer) => 
+            `<option key=${customer.customer_id} value=${customer.customer_id} >${customer.customer_name}</option>`
+            )
         }
         this.handleAddStop = this.handleAddStop.bind(this);
         
-        this.customersList = this.customersList.bind(this);
+        //this.customersList = this.customersList.bind(this);
     }
+
+    setStops = () => this.setState({numberStops: this.state.numberStops + 1})
 
     getCustomersData = () => {
         console.log('getcustoemrsdata running');
@@ -29,7 +39,7 @@ class CreateRoute extends React.Component {
         //fetch length of route_list and sets newRouteNumber to it + 1
         fetch("https://allin1ship.herokuapp.com/getRouteLength")
         .then(response => response.json())
-        .then(json => this.setState({newRouteNumber: json.[0]["COUNT(*)"] + 1}))
+        .then(json => this.setState({newRouteNumber: json[0]["COUNT(*)"] + 1}))
         .then(() => console.log(this.state))
         .catch(err => console.log(err))
     }
@@ -42,20 +52,22 @@ class CreateRoute extends React.Component {
         this.getNewRouteNumber()
     }
 
-    createNewRoute = () => {
+    createNewRoute = (newRouteName) => {
         //get server endpoint that jusst creates new row in route_list
-        fetch("https://allin1ship.herokuapp.com/createNewRouteList")
-        .then(response => console.log('new route list created', response.json()))
+        const route_name = encodeURIComponent(newRouteName)
+        console.log(route_name);
+        fetch(`https://allin1ship.herokuapp.com/createNewRouteList/${route_name}`)
+        .then(response => alert('route successfully made!'))
         .catch(err => console.log(err))
     }
 
     postNewStop = (i) => {
-        console.log('postnewstop running, i:', i, document.getElementById(`stopNumber${i}`).innerText)
+        console.log('postnewstop running, i:', i)
 
         const stopData = {
             route_id: this.state.newRouteNumber,
             stop_number: document.getElementById(`stopNumber${i}`).innerText,
-            customer_id: 2,/* ****!!!!!!!??? how to get customer_id... document.getElementById(`customerselect${i}`).selectElement.options[document.getElementById(`customerselect${i}`).selectedIndex].value,*/
+            customer_id: document.getElementById(`select${i}`).value,/* ****!!!!!!!??? how to get customer_id... document.getElementById(`customerselect${i}`).selectElement.options[document.getElementById(`customerselect${i}`).selectedIndex].value,*/
             notes: document.getElementById(`notes${i}`).value
         }
         console.log(JSON.stringify(stopData));
@@ -64,18 +76,19 @@ class CreateRoute extends React.Component {
             headers: {
                 "Content-Type": "application/json"},
             body: JSON.stringify(stopData)
-        }).then(response => console.log('new stop posted', response.json()))
+        })
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
-        console.log('handlesubmit running', this.state.numberStops);
-        this.createNewRoute()
+        console.log('handlesubmit running', document.getElementById(`route-name`).value);
+        this.createNewRoute(document.getElementById(`route-name`).value)
         setTimeout(() => {
             for (let i=1;i<=this.state.numberStops;i++) {
                 this.postNewStop(i)
             }
           }, 2000)
+
         
     }
 //function to map fetched customer list and set an option for each with id customer_id and value address/name
@@ -87,39 +100,56 @@ class CreateRoute extends React.Component {
   //  <input type='text' placeholder='optional notes'></input>
 //</div>
 
-    /*customersList = this.state.customersData && this.state.customersData.map((customer) => (
+    /*fakeCustomersList = this.state.customersData && this.state.customersData.map((customer) => (
         {
             value: customer.customer_id, 
             label: customer.customer_name
         }
     ))*/
    //customersList =  [{value: 3, label: 'tippytoes'}, {value: 2, label: 'lentilhouse'}]
-   customersList = () => this.state.customersData && this.state.customersData.map((customer) => 
-            <option key={customer.customer_id}>{customer.customer_name}</option>
-        );
         
-    setStops = () => this.setState({numberStops: this.state.numberStops + 1})
 
     handleAddStop() {
-        console.log('handleaddstoprunnign', this.customersList);
+        console.log('handleaddstoprunnign');
         this.setStops();
-        console.log(this.state);
-        document.getElementById('tbl').innerHTML += `<tr>
-            <td contentEditable="true" id=${`stopNumber${this.state.numberStops+1}`}>${this.state.numberStops + 1}</td>
-            <td ><select name='customer' id=${`customerselect${this.state.numberStops + 1}`}>${this.customersList()}</select></td> 
+        $('tbody').append( `<tr>
+            <td id=${`stopNumber${this.state.numberStops+1}`}>${this.state.numberStops + 1}</td>
+            <td ><select name='customer' id=${`select${this.state.numberStops + 1}`}>${this.state.customersData && this.state.customersListB(this.state.customersData)}</select></td> 
             <td><input type="text" name="notes" id=${`notes${this.state.numberStops+1}`} /></td>   
         </tr>
-        `;
+        `)
     }
+    
+    removeRow(){
+        console.log(this.state.customersData);
+        //dunno how to do with the way i made table - switch all to .map an array of length starting one adding one for each addrwo click?
+        /*let rows = this.state.items;
+        rows.splice(1);
+        this.setState({items:rows})*/
+        }
+    /*
+    handleAddStop() {
+        console.log('handleaddstoprunnign');
+        this.setStops();
+        document.getElementById('tbody').insertAdjacentHTML("beforeend", `<tr>
+            <td id=${`stopNumber${this.state.numberStops+1}`}>${this.state.numberStops + 1}</td>
+            <td ><select name='customer' id=${`customerselect${this.state.numberStops + 1}`}>${this.state.customersList}</select></td> 
+            <td><input type="text" name="notes" id=${`notes${this.state.numberStops+1}`} /></td>   
+        </tr>
+        `)
+    }*/
 
-
+//$("#tbody").append(appRow);
     render() {
         
         return <div>
-            <p> ROUTE # {this.state.newRouteNumber}</p>
-           <form id='route-form' onSubmit={this.handleSubmit}>
-               {/* <button type='button' onClick={this.handleAddStop}>Add Stop</button> <br/> */}
-                <br/> <button type='submit'>Submit Stop</button>
+            <form id='route-form' onSubmit={this.handleSubmit}>
+                <p> ROUTE # {this.state.newRouteNumber}</p>
+
+                <label for='route-name'>Route Name:</label>
+                <input type='text' id='route-name'></input>
+                {/* <button type='button' onClick={this.handleAddStop}>Add Stop</button> <br/> */}
+                <br/> <button type='submit'>Submit Route</button>
                 {/*<div>
                     <span>{this.state.numberStops}</span>
                     <select>{() => this.customersList}</select>
@@ -132,20 +162,20 @@ class CreateRoute extends React.Component {
                             <th>Customer</th>
                             <th>Notes</th>
                         </tr>
+                        <input type="button" className="button" value="remove Row" onClick={() => this.removeRow()} />
                     </thead>
-                    <tbody>
+                    <tbody id='tbody'>
                         <tr>
-                            <td contentEditable="true" id='stopNumber1'>1</td>
-                            <td id='customerselect1'><select name='customer' >{this.customersList()}</select></td> 
+                            <td id={`stopNumber1`} >1</td>
+                            <td id='customerselect1'><select name='customer' id='select1' >{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td> 
                             <td><input type="text" name="notes" id='notes1' /></td>   
-                            {/*<td><input type="submit" className="button" value="Add another line" onClick={() => console.log('add another line button clicked')} /></td>     */}     
+                            <td><input type="button" className="button" value="Add another line" onClick={() => this.handleAddStop()} /></td>
                         </tr>
                     </tbody>
                 </table>
             </form>
         </div>
     }
-
 }
 
 
