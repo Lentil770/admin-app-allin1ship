@@ -20,6 +20,7 @@ class EditRoute extends React.Component {
     getRouteData = () => {
         this.setState({routeData: null});
         const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        console.log(url);
         fetch(url)
         .then(response => response.json())
         .then(json => this.setState({routeData: json}))
@@ -98,8 +99,8 @@ handleRouteChange = (e) => {
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
             <option key={driver.driver}>{driver.driver}</option>
         );*/
-        const tableRouteData = this.state.routeData && this.state.routeData.map((stop, index) => 
-            <tr key={index}>
+        const tableRouteData = this.state.routeData && this.state.routeData.map((stop) => 
+            <tr >
                 <td id={`stopNumber${stop.stop_number}`}>{stop.stop_number}</td>
                 <td id={`customer${stop.stop_number}`}><select id={`customerSelect${stop.stop_number}`}><option key='0' value={stop.customer_id} >{stop.customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 <td contentEditable="true" id={`notes${stop.stop_number}`} >{stop.notes}</td> 
@@ -113,7 +114,7 @@ handleRouteChange = (e) => {
     );
         //const selectedRouteName = document.getElementById('selectRoute').value;
         //console.log(selectedRouteName);
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='EditRoute'>
 
                 <form name='editRoute' onSubmit={this.handleSubmit}>
@@ -130,7 +131,7 @@ handleRouteChange = (e) => {
                             <tr>
                                 <th>Stop #</th>
                                 <th>Customer</th>
-                                <th>Comments</th>
+                                <th>Tasks</th>
                             </tr>
                            {/* <span><input type="button" className="button" value="Add another line" onClick={() => this.handleAddStop()} /></span>*/}
                         </thead>

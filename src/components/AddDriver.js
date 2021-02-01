@@ -37,7 +37,7 @@ class AddDriver extends React.Component {
         );*/
 
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='AddDriver'>
 
                 <form onSubmit={this.handleSubmit}>

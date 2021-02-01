@@ -12,6 +12,7 @@ import { Route } from 'react-router-dom';
 import DisplayFeedback from './components/DisplayFeedback';
 import DisplayTimestamps from './components/DisplayTimestamps';
 import DisplayStartTimes from './components/DisplayStartTimes';
+import DisplayCurrentRoute from './components/DisplayCurrentRoute';
 
 //admin GUI for database, to add schedules routes (and eventually customers) to database!
 
@@ -63,6 +64,10 @@ function App() {
       <Route
         path='/display-timestamps'
         component={DisplayTimestamps}
+      />
+      <Route
+        path='/display-current-route'
+        component={DisplayCurrentRoute}
       />
     </main>
   );

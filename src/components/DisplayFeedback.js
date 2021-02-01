@@ -42,7 +42,7 @@ class DisplayFeedback extends React.Component {
             </div>
         )
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='DisplayFeedback'>
                     DRIVER:<br/>
                     <select required onChange={this.handleDriverChange}>

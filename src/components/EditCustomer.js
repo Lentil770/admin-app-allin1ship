@@ -52,7 +52,7 @@ class EditCustomer extends React.Component {
         );*/
 
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='EditCustomer'>
 
                 <form onSubmit={this.handleSubmit}>

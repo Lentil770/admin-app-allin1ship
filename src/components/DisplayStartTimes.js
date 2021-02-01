@@ -34,13 +34,12 @@ class DisplayStartTimes extends React.Component {
 
         const renderStartTimes = this.state.startTimesData && this.state.startTimesData.map((startTime) => 
             <div>
-                <span>{startTime.feedback_date}</span>{'  '}
-                <span>STOP # {startTime.stop_number}</span>{' - '}
-                <span>{startTime.feedback}</span>{'  '}
+                <span>{startTime.start_time}</span>{'  '}
+                <span>{startTime.driver}</span>{'  '}
             </div>
         )
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='DisplayStartTimes'>
                     DRIVER:<br/>
                     <select required onChange={this.handleDriverChange}>

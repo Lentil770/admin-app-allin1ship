@@ -140,9 +140,21 @@ class CreateRoute extends React.Component {
     }*/
 
 //$("#tbody").append(appRow);
+    tableRows = () => {
+        let rows = [];
+        for (let i=1;i<=this.numberStops;i++) {
+            rows.push(`<tr>
+            <td id=${`stopNumber${i}`}>${i}</td>
+            <td ><select name='customer' id=${`select${i}`}>${this.state.customersData && this.state.customersListB(this.state.customersData)}</select></td> 
+            <td><input type="text" name="notes" id=${`notes${i}`} /></td>   
+        </tr>`)
+        }
+        console.log(rows);
+        return rows
+    }
     render() {
         
-        return <div>
+        return <div style={{padding: '15px'}}>
             <form id='route-form' onSubmit={this.handleSubmit}>
                 <p> ROUTE # {this.state.newRouteNumber}</p>
 
@@ -165,8 +177,9 @@ class CreateRoute extends React.Component {
                         <input type="button" className="button" value="remove Row" onClick={() => this.removeRow()} />
                     </thead>
                     <tbody id='tbody'>
+                        {/*this.tableRows()*/}
                         <tr>
-                            <td id={`stopNumber1`} >1</td>
+                            <td id={`stopNumber1`} >old 1</td>
                             <td id='customerselect1'><select name='customer' id='select1' >{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td> 
                             <td><input type="text" name="notes" id='notes1' /></td>   
                             <td><input type="button" className="button" value="Add another line" onClick={() => this.handleAddStop()} /></td>

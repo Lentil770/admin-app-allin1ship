@@ -40,7 +40,7 @@ class AddCustomer extends React.Component {
 
     render() {
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='AddCustomer'>
 
                 <form onSubmit={this.handleSubmit}>

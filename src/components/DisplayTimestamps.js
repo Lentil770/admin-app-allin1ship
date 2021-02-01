@@ -41,7 +41,7 @@ class DisplayTimestamps extends React.Component {
             </div>
         )
 
-        return <div>            
+        return <div style={{padding: '15px'}}>            
              <main className='DisplayTimestamps'>
                     DRIVER:<br/>
                     <select required onChange={this.handleDriverChange}>
