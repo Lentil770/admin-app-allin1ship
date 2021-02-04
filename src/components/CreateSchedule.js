@@ -13,7 +13,7 @@ class CreateSchedule extends React.Component {
         vehicles: null,
         routeData: null,
         selectedRoute: '',
-        selectedDate: null,
+        selectedDate: new Date().toISOString().split('T')[0],
         selectedDriver: null,
         selectedVehicle: null,
         routeTableData: [],
@@ -44,21 +44,20 @@ class CreateSchedule extends React.Component {
 
     addRouteRow = () => {
         const { routeTableData } = this.state;
-        const tableRow = (<tr>
+        const tableRow = (<tr key={`stopNumber${routeTableData.length + 1}`}>
             <td id={`stopNumber${routeTableData.length + 1}`}>{routeTableData.length + 1}</td>
             <td id={routeTableData.length + 1}><select id={`customerSelect${routeTableData.length + 1}`}><option value="none" selected disabled hidden> 
                         Select Customer
                     </option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-            <td contentEditable="true"  ><textarea onChange={tasktext => this.setState({[`tasks${routeTableData.length + 1}`]: tasktext })}
+            <td ><textarea onChange={tasktext => this.setState({[`tasks${routeTableData.length + 1}`]: tasktext })}
                 rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
             >
             </textarea></td> 
             {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
         </tr>)
-        console.log(tableRow);
         this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
     }
-    deleteRouteRow = (rowNumber) => {
+    /*deleteRouteRow = (rowNumber) => {
         //somehow delete selected row from state. shdnt be too hard with stop_number
         //NOT WOKRING - RIGHT NOW DELETES FIRST ROW...
         console.log('deleterouterow');
@@ -67,7 +66,7 @@ class CreateSchedule extends React.Component {
         this.setState({routeTableData})
         console.log('aftersplice:', this.state.routeTableData);
         
-    }
+    }*/
     
 
     setRouteTableData = () => {
@@ -76,13 +75,13 @@ class CreateSchedule extends React.Component {
         //
         const { routeData } = this.state;
         for (let i=0;i<routeData.length;i++) {
-            const tableRow = (<tr>
+            const tableRow = (<tr key={routeData[i].stop_number} >
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
-                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} /*defaultValue={this.state[`tasks${routeData[i].stop_number}`]}*/ name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
-                {<input type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</input>}
+                {/*<input type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</input>*/}
             </tr>)
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         }
@@ -98,7 +97,7 @@ class CreateSchedule extends React.Component {
         this.setState({[`tasks${stopi+1}`]: formattedTasks}) 
     }
 
-    getTasks = (stop_ids) => {    
+    /*getTasks = (stop_ids) => {    
         console.log('stop_ids', stop_ids);    
         this.setState({stopTasks: []})
         for (let i=0;i<stop_ids.length;i++) {
@@ -111,7 +110,7 @@ class CreateSchedule extends React.Component {
             .catch(err => console.log(err))
         }
         console.log('finished fetching stops tasks', this.state);
-    }
+    }*/
 
     getRouteData = () => {
         this.setState({routeData: null})
@@ -121,8 +120,8 @@ class CreateSchedule extends React.Component {
         .then(json => {
             this.setState({routeData: json})
             console.log(json);
-            this.getTasks(json.map((obj) => obj.id))
-        })
+            //this.getTasks(json.map((obj) => obj.id))
+        }).then(() => this.setRouteTableData())
         //.then(() => this.getTasks(this.state.routeData.map(obj => obj.id)))
         //move insidefetchstops?.then(() => this.setRouteTableData())
         .catch(err => console.log(err))
@@ -165,6 +164,7 @@ class CreateSchedule extends React.Component {
     
     postStopTask = (tasks, schedule_stop_id) => {
         console.log(tasks);
+        if (!tasks) return;
         const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
         console.log(taskArray, schedule_stop_id);
         for (let i=0;i<taskArray.length;i++) {
@@ -181,12 +181,10 @@ class CreateSchedule extends React.Component {
     }
 
     postScheduleStops = (i) => {
-        console.log('postScheduleStops: ,', i);
         //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
         const postStopData = {
-            //customerSelect[i], task[i], (taskTextArea[i]) stopNumber[i]
             stopNumber:  document.getElementById(`stopNumber${i+1}`).innerText,
-            scheduleId: this.state.newScheduleNumber, ////where to get scheduleId from??
+            scheduleId: `${this.state.newScheduleNumber}`, ////where to get scheduleId from??
             customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
         } 
         console.log('handlesubmitstop', JSON.stringify(postStopData));
@@ -225,11 +223,14 @@ class CreateSchedule extends React.Component {
             body: JSON.stringify(postData)
         }).then((response) => {
             //for each row in state.routeStopsData
-            if (response.ok) for (let i=0;i<this.state.routeTableData.length;i++) {
-                this.postScheduleStops(i)
-            }
-        }).then(() => alert('schedule successfully posted')
-        )
+            if (response.ok) {
+                
+                for (let i=0;i<this.state.routeTableData.length;i++) {
+                    this.postScheduleStops(i)
+                }
+                alert('schedule successfully posted')
+        }
+        })
     }
 
 
