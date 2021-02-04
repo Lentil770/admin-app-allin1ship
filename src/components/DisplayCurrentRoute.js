@@ -21,12 +21,12 @@ class DisplayCurrentRoute extends React.Component {
     }
 
    
-    fetchTasksData = (stopId) => {
+    fetchTasksData = (stopId, index) => {
         console.log('gettasks running');
         const url = `https://allin1ship.herokuapp.com/getDailyTasks/${stopId}`;
         fetch(url)
         .then(response => response.json())
-        .then(json => this.setState({[`tasks${stopId}`]: json}))
+        .then(json => this.setState({[`tasks${index}`]: json}))
         .then(() => console.log(this.state))
         .catch(err => console.log(err))
     }
@@ -37,8 +37,16 @@ class DisplayCurrentRoute extends React.Component {
             .then(response => response.json())
             .then(json => {
                 this.setState({routeData: json})
-                this.fetchTasksData(json[0].schedule_stop_id)
+                for (let i=0;i< json.length;i++) {                    
+                this.fetchTasksData(json[i].schedule_stop_id, i)
+                }
             })
+    }
+
+    renderTaskDetails = () => {
+        for (let i=0;i<this.state.routeData.length;i++) {
+
+        }
     }
 
     render() {
@@ -54,12 +62,13 @@ class DisplayCurrentRoute extends React.Component {
             <td>{stop.customer_name}</td>
             <td>{stop.number_packages}</td>
             <td>{stop.feedback}</td>
-            <td>{stop.check_in_time}</td>
-            <td>{stop.check_out_time}</td>
+            <td>{stop.check_in_time.substring(11, 19)}</td>
+            <td>{stop.check_out_time.substring(11, 19)}</td>
             <td>{stop.completion_status}</td>
         </tr>            
         )
 
+        
         return <div style={{padding: '15px'}}>            
              <main className='DisplayCurrentRoute'>
                     DRIVER:<br/>
@@ -70,7 +79,7 @@ class DisplayCurrentRoute extends React.Component {
                         {optionsDrivers}
                     </select><br/><br/>
                     
-                    {routeData && <div>
+                    {routeData && routeData[0] && <div>
                         <p>Vehicle: {routeData[0].vehicle}</p>
                         <p>Route: {routeData[0].route_name}</p><br/>
                         <p>Dropoff Info: {routeData[0].dropoff_info}</p>
@@ -89,8 +98,24 @@ class DisplayCurrentRoute extends React.Component {
                             </tr>}
                         </thead>
                         <tbody>
-                            {renderRouteDetails}
+                            {routeData && renderRouteDetails}
                         </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            {this.state.tasks0 && <tr>
+                                <th>Stop #</th>
+                                <th>Customer Name</th>
+                                <th>Packages</th>
+                                <th>Feedback</th>
+                                <th>Check-in Time</th>
+                                <th>Completion Time</th>
+                                <th>Stop Status</th>
+                            </tr>}
+                        </thead>
+                        {routeData && <tbody>
+                            {() => this.renderTaskDetails()}
+                        </tbody>}
                     </table>
             </main>
         </div>

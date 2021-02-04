@@ -82,7 +82,7 @@ class CreateSchedule extends React.Component {
                 <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
-                {/*<button type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</button>*/}
+                {<input type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</input>}
             </tr>)
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         }
@@ -161,45 +161,25 @@ class CreateSchedule extends React.Component {
     onSuccessfulPost = () => {
         alert('all successfully posted')
     }
-    postSchedule = () => {
-        const postData = {
-            selectedDefaultRoute: this.state.selectedRoute,
-            selectedDate: this.state.selectedDate,
-            selectedDriver: this.state.selectedDriver,
-            selectedVehicle: this.state.selectedVehicle,
-            selectedDropOffInfo: this.state.selectedDropOffInfo
-        }
-        console.log('handlesubmit', JSON.stringify(postData));
-        fetch("https://allin1ship.herokuapp.com/postSchedule", {
-            method: "POST",  
-            headers: {
-                "Content-Type": "application/json"},
-            body: JSON.stringify(postData)
-        }).then((response) => {
-            //for each row in state.routeStopsData
-            if (response.ok) for (let i=0;i<this.state.routeTableData.length;i++) {
-                this.postScheduleStops(i)
-            }
-        }).then(() => alert('schedule successfully posted')
-        )
-    }
+ 
     
     postStopTask = (tasks, schedule_stop_id) => {
         console.log(tasks);
         const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
         console.log(taskArray, schedule_stop_id);
         for (let i=0;i<taskArray.length;i++) {
-        fetch(`https://allin1ship.herokuapp.com/postStopTask/${schedule_stop_id}`, {
-            method: "POST",  
-            headers: {
-                "Content-Type": "application/json"},
-            body: JSON.stringify({task: taskArray[i]})
-        }).then(function(response) {
-            console.log('stop_task successfully posted', response)
-            //this.onSuccessfulPost()
-        })
+            fetch(`https://allin1ship.herokuapp.com/postStopTask/${schedule_stop_id}`, {
+                method: "POST",  
+                headers: {
+                    "Content-Type": "application/json"},
+                body: JSON.stringify({task: taskArray[i]})
+            }).then(function(response) {
+                console.log('stop_task successfully posted', response)
+                //this.onSuccessfulPost()
+            })
+        }
     }
-    }
+
     postScheduleStops = (i) => {
         console.log('postScheduleStops: ,', i);
         //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
@@ -227,6 +207,31 @@ class CreateSchedule extends React.Component {
     
         }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
     }
+
+
+    postSchedule = () => {
+        const postData = {
+            selectedDefaultRoute: this.state.selectedRoute,
+            selectedDate: this.state.selectedDate,
+            selectedDriver: this.state.selectedDriver,
+            selectedVehicle: this.state.selectedVehicle,
+            selectedDropOffInfo: this.state.selectedDropOffInfo
+        }
+        console.log('handlesubmit', JSON.stringify(postData));
+        fetch("https://allin1ship.herokuapp.com/postSchedule", {
+            method: "POST",  
+            headers: {
+                "Content-Type": "application/json"},
+            body: JSON.stringify(postData)
+        }).then((response) => {
+            //for each row in state.routeStopsData
+            if (response.ok) for (let i=0;i<this.state.routeTableData.length;i++) {
+                this.postScheduleStops(i)
+            }
+        }).then(() => alert('schedule successfully posted')
+        )
+    }
+
 
     handleSubmit = (e) => {
         e.preventDefault();
@@ -320,9 +325,9 @@ class CreateSchedule extends React.Component {
     }
     render() {
 
-        const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
+        /*const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
             <option key={driver.driver}>{driver.driver}</option>
-        );
+        );*/
 
         const optionsRoutes = this.state.routes && this.state.routes.map((route) => 
             <option key={route.id} value={route.id}>{route.id} - {route.route_name}</option>
@@ -332,19 +337,25 @@ class CreateSchedule extends React.Component {
             <option key={vehicle.vehicle}>{vehicle.vehicle}</option>
         );
 
+        const todaysDate = new Date().toISOString().split('T')[0];
+
         return <div style={{padding: '15px'}}>            
              <main className='CreateSchedule'>
                 <form onSubmit={this.handleSubmit}>
                 <br/><legend>New Schedule #{this.state.newScheduleNumber}</legend><br/>
                     <label htmlFor="schedule-date">Date:</label><br/>
-                    <input type="date" id="schedule-date" required onChange={this.handleDateChange}/><br/><br/>
+                    <input type="date" id="schedule-date" value={todaysDate} required onChange={this.handleDateChange}/><br/><br/>
                    
                     DRIVER:<br/>
                     <select onChange={this.handleDriverChange}>
                     <option value="none" selected disabled hidden> 
                         Select a Driver 
                     </option>
-                        {optionsDrivers}                   
+                    <option value="Jonathan">Jonathan</option>
+                    <option value="Will">Will</option>
+                    <option value="Alex">Alex</option>
+                    <option value="Driver">Driver</option>
+                    <br/>                                     
                     </select><br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
                     <select required onChange={this.handleVehicleChange}>

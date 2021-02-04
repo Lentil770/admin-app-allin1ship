@@ -14,7 +14,7 @@ class TopBar extends React.Component {
                 <br/>
                 <div>
                     <Link to='/create-schedule'><button>CREATE NEW SCHEDULE</button></Link>                    
-                    <Link to='/display-current-route-data'><button>VIEW CURRENT ROUTE DATA</button></Link>
+                    <Link to='/display-current-route'><button>VIEW CURRENT ROUTE DATA</button></Link>
                     <Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>     
                     <Link to='/add-customer'><button>ADD CUSTOMER</button></Link>
                     {/*<Link to='/edit-customer'><button>EDIT CUSTOMER</button></Link>*/}
