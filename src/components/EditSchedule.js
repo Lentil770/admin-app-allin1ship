@@ -2,6 +2,9 @@ import React from 'react';
 
 class EditSchedule extends React.Component {
     state = {
+        customersList: (givenData) => givenData && givenData.map((customer) => 
+            <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
+            )
     }
     //works:)
     fetchDrivers = () => {
@@ -29,11 +32,22 @@ class EditSchedule extends React.Component {
         .catch(err => console.log(err))
     }
 
+    getCustomersData = () => {
+        console.log('getcustoemrsdata running');
+        const url = "https://allin1ship.herokuapp.com/getCustomersData";
+        fetch(url)
+        .then(response => response.json())
+        .then(json => this.setState({customersData: json}))
+        .then(() => console.log(this.state))
+        .catch(err => console.log(err))
+    }
+
     componentDidMount() {
         console.log('componentDidMount');
         this.fetchDrivers();
         this.getVehicles();
         this.getRoutes();
+        this.getCustomersData();
     }
 
     setRouteTableData = () => {
@@ -44,8 +58,8 @@ class EditSchedule extends React.Component {
             const tableRow = (<tr>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                <td contentEditable="true"  ><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
-                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} value={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
+                <td ><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
                 {/*<button type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</button>*/}
             </tr>)
@@ -53,17 +67,44 @@ class EditSchedule extends React.Component {
         }
     }
 
-    
-    getInitialRouteData = () => {
-        this.setState({routeData: null})
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + this.state.scheduleData[0].route_id;
-        fetch(url)
-        .then(response => response.json())
-        .then(json => this.setState({routeData: json}))
-        .then(() => this.setRouteTableData())
-        .catch(err => console.log(err))
+    formatTasks = (json, stopi) => {
+        let formatArray = [];
+        for (let i=0;i<json.length;i++) {
+            formatArray.push(json[i].task)
+        }
+        let formattedTasks = formatArray.join('\n')
+
+        this.setState({[`tasks${stopi+1}`]: formattedTasks}) 
     }
 
+    getTasks = (stop_ids) => {    
+        console.log('stop_ids', stop_ids);    
+        this.setState({stopTasks: []})
+        for (let i=0;i<stop_ids.length;i++) {
+            console.log('stopid[i]=', stop_ids[i]);
+            const url = "https://allin1ship.herokuapp.com/getRouteTasks/" + stop_ids[i];
+            console.log(url);
+            fetch(url)
+            .then(response => response.json())
+            .then(json => this.formatTasks(json, i))
+            .then(() => this.setRouteTableData())
+            .catch(err => console.log(err))
+        }
+        console.log('finished fetching stops tasks', this.state);
+    }
+
+    getInitialRouteData = () => {
+        this.setState({routeData: null})
+        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + this.state.scheduleData[0].id;
+        fetch(url)
+        .then(response => response.json())
+        .then(json => {
+            this.setState({routeData: json})
+            this.getTasks(json.map((obj) => obj.stop_number))
+        })
+        .catch(err => console.log(err))
+    }
+//deal with!
     getRouteData = () => {
         this.setState({routeData: null})
         const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
@@ -85,15 +126,66 @@ class EditSchedule extends React.Component {
         .then(json => {
             this.setState({scheduleData: json})
             this.setState({selectedDropOffInfo: json[0].dropoff_info})
-            this.setState({selectedDate: json[0].schedule_date})
+            this.setState({selectedDate: json[0].schedule_date.substring(0, 10)})
             this.setState({selectedVehicle: json[0].vehicle})
             this.setState({selectedDriver: json[0].driver})
+            this.setState({selectedDefaultRoute: json[0].route_id})
         })
         .then(() => this.getInitialRouteData())
         .catch(err => console.log(err))
 
     }
 
+    deleteStopTasks = (schedule_stop_id) => {
+        fetch(`https://allin1ship.herokuapp.com/deleteStopsTasks/${schedule_stop_id+1}`)
+        .then(response => console.log('deleted tasks', response))
+    }
+
+    postStopTask = (tasks, schedule_stop_id) => {
+        console.log('poststoptask running1 tasks: ', tasks, schedule_stop_id);
+        if (!tasks) return;
+        const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
+        console.log(taskArray, schedule_stop_id);
+        this.deleteStopTasks(schedule_stop_id);
+        for (let i=0;i<taskArray.length;i++) {
+            fetch(`https://allin1ship.herokuapp.com/alterStopTask/${schedule_stop_id+1}`, {
+                method: "POST",  
+                headers: {
+                    "Content-Type": "application/json"},
+                body: JSON.stringify({task: taskArray[i]})
+            }).then(function(response) {
+                console.log('stop_task successfully posted', response)
+                //this.onSuccessfulPost()
+            })
+        }
+    }
+
+    postScheduleStops = (i) => {
+        //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
+        const alterStopData = {
+            stopNumber:  document.getElementById(`stopNumber${i+1}`).innerText,
+            scheduleId: `${this.state.scheduleData[0].id}`, ////where to get scheduleId from??
+            customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
+        } 
+        console.log('handlesubmitstop', JSON.stringify(alterStopData));
+        fetch("https://allin1ship.herokuapp.com/alterScheduleStops", {
+            method: "POST",  
+            headers: {
+                "Content-Type": "application/json"},
+            body: JSON.stringify(alterStopData)
+        }).then((response) => {
+            if(response.ok) {
+                return response.json()
+            }
+            else {throw new Error(response.statusText) }
+/*
+            console.log('sched_stop successfully posted');
+            this.postStopTask(stopData.tasks)
+            return response.json();*/
+    
+        }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
+    }
+    
     handleSubmit = (e) => {
         e.preventDefault();
         const postData = {//schedule_date=${req.body.selectedDate} , driver=${req.body.selectedDriver}, vehicle=${req.body.selectedVehicle}, dropoff_info=${req.body.selectedDropOffInfo}, route_id=${req.body.selectedDefaultRoute}`;
@@ -101,7 +193,7 @@ class EditSchedule extends React.Component {
             selectedDriver: this.state.selectedDriver,
             selectedVehicle: this.state.selectedVehicle,
             selectedDropOffInfo: this.state.selectedDropOffInfo,
-            selectedDefaultRoute: this.state.selectedRoute
+            selectedDefaultRoute: this.state.selectedDefaultRoute
         }
         console.log('handlesubmit', JSON.stringify(postData));
         fetch(`https://allin1ship.herokuapp.com/alterSchedule/${this.state.scheduleData[0].id}`, {
@@ -109,12 +201,17 @@ class EditSchedule extends React.Component {
             headers: {
                 "Content-Type": "application/json"},
             body: JSON.stringify(postData)
-        }).then(function(response) {
-            console.log(response)
-            alert('Schedule edits successfully posted');
-            return response.json();
-        })
+        }).then((response) => {
+        //for each row in state.routeStopsData
+        if (response.ok) {
+            
+            for (let i=0;i<this.state.routeTableData.length;i++) {
+                this.postScheduleStops(i)
+            }
+            alert('schedule successfully posted')
     }
+    })
+}
 
     handleRouteChange = (e) => {
         console.log(document.getElementById("selectRoute").value)
@@ -176,6 +273,7 @@ class EditSchedule extends React.Component {
             <button type='button' onClick={() => this.handleCommentButton(stop.stop_number, document.getElementById(`notes${stop.notes}`).innerText)}>submit changes</button>
         </tr>  
     )*/
+        const todaysDate = new Date().toISOString().split('T')[0];
 
         return <div style={{padding: '15px'}}>            
              <main className='EditSchedule'>
@@ -187,8 +285,8 @@ class EditSchedule extends React.Component {
                             {driverOptions}
                     </select><br/>
                     
-                    <label htmlFor="schedule-date">Change Date:</label><br/>
-                    <input type="date" id="schedule-date" onChange={this.handleDateChange}/><br/><br/>
+                    {this.state.routeData && <><label htmlFor="schedule-date">Change Date:</label><br/>
+                    <input type="date" id="schedule-date" defaultValue={todaysDate} onChange={this.handleDateChange}/><br/><br/>
                    
                     DRIVER:<br/>
                     <select onChange={this.handleDriverChange}>
@@ -223,7 +321,7 @@ class EditSchedule extends React.Component {
                     ></textarea><br/><br/>
                     ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
                     <select id='selectRoute' onChange={this.handleRouteChange}>
-                        <option value={this.state.scheduleData && this.state.scheduleData.route_id} selected disabled hidden>{this.state.scheduleData && this.state.scheduleData.route_id}</option>
+                        <option value={this.state.scheduleData && this.state.scheduleData[0].route_id} selected disabled hidden>{this.state.scheduleData && this.state.scheduleData.route_id}</option>
                         {routeOptions}
                     </select><br/>
                     <table>
@@ -253,7 +351,7 @@ class EditSchedule extends React.Component {
                     onChange={this.handleTextChange}
                     name='comment'>Thank you for working hard today, your work means a lot and we appreciate the extra you put in</textarea><br/><br/>
                    */}
-                    <button type='submit'>SUBMIT</button><br/>
+                    <button type='submit'>SUBMIT</button><br/></>}
                 </form>
             
             </main>
