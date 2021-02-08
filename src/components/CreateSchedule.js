@@ -17,7 +17,7 @@ class CreateSchedule extends React.Component {
         selectedDriver: null,
         selectedVehicle: null,
         routeTableData: [],
-        selectedDropOffInfo: 'Thank you for working hard today, your work means a lot and we appreciate the extra you put in',
+        selectedDropOffInfo: 'Thank you for the hard work today, it is greatly appreciated. You’re the front line workers in our company and your hard work shows! Please park the van, near the office, if you cannot find parking you can always use the driveway at 740 Montgomery St, (The driveway is narrow so just be alert). Rest up, looking forward to seeing you at the next drive!',
         customersList: (givenData) => givenData && givenData.map((customer) => 
             <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
             )
@@ -114,7 +114,7 @@ class CreateSchedule extends React.Component {
 
     getRouteData = () => {
         this.setState({routeData: null})
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        const url = "https://allin1ship.herokuapp.com/defaultRouteDisplay/" + document.getElementById("selectRoute").value;
         fetch(url)
         .then(response => response.json())
         .then(json => {
@@ -163,7 +163,7 @@ class CreateSchedule extends React.Component {
  
     
     postStopTask = (tasks, schedule_stop_id) => {
-        console.log(tasks);
+        console.log('poststoptask running1 tasks: ', tasks);
         if (!tasks) return;
         const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
         console.log(taskArray, schedule_stop_id);
@@ -317,6 +317,7 @@ class CreateSchedule extends React.Component {
     }
 
     handleVehicleChange = (e) => {
+        console.log(this.state);
         this.setState({selectedVehicle: e.target.value})        
     }
 

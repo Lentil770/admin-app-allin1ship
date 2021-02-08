@@ -58,10 +58,11 @@ class EditSchedule extends React.Component {
             const tableRow = (<tr>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                <td ><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
+                <td ><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
                 {/*<button type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</button>*/}
+                <button type='button' onClick={() => console.log(this.state)}>delete row</button>
             </tr>)
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         }
@@ -100,7 +101,7 @@ class EditSchedule extends React.Component {
         .then(response => response.json())
         .then(json => {
             this.setState({routeData: json})
-            this.getTasks(json.map((obj) => obj.stop_number))
+            this.getTasks(json.map((obj) => obj.schedule_stop_id))
         })
         .catch(err => console.log(err))
     }
@@ -122,7 +123,11 @@ class EditSchedule extends React.Component {
         const url = "https://allin1ship.herokuapp.com/singleScheduleDisplay/" + document.getElementById("selectSchedule").value;
         console.log(url);
         fetch(url)
-        .then(response => response.json())
+        .then(response => {
+            if(response.ok) return response.json()
+            else {throw new Error}
+            
+        })
         .then(json => {
             this.setState({scheduleData: json})
             this.setState({selectedDropOffInfo: json[0].dropoff_info})
@@ -137,18 +142,18 @@ class EditSchedule extends React.Component {
     }
 
     deleteStopTasks = (schedule_stop_id) => {
-        fetch(`https://allin1ship.herokuapp.com/deleteStopsTasks/${schedule_stop_id+1}`)
+        console.log(schedule_stop_id);
+        fetch(`https://allin1ship.herokuapp.com/deleteStopsTasks/${schedule_stop_id}`)
         .then(response => console.log('deleted tasks', response))
     }
 
     postStopTask = (tasks, schedule_stop_id) => {
-        console.log('poststoptask running1 tasks: ', tasks, schedule_stop_id);
-        if (!tasks) return;
+        console.log('poststoptask running tasks: ', tasks, schedule_stop_id);
         const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
         console.log(taskArray, schedule_stop_id);
         this.deleteStopTasks(schedule_stop_id);
         for (let i=0;i<taskArray.length;i++) {
-            fetch(`https://allin1ship.herokuapp.com/alterStopTask/${schedule_stop_id+1}`, {
+            fetch(`https://allin1ship.herokuapp.com/alterStopTask/${schedule_stop_id}`, {
                 method: "POST",  
                 headers: {
                     "Content-Type": "application/json"},
@@ -160,12 +165,12 @@ class EditSchedule extends React.Component {
         }
     }
 
-    postScheduleStops = (i) => {
+    postScheduleStops = (givenI) => {
         //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
         const alterStopData = {
-            stopNumber:  document.getElementById(`stopNumber${i+1}`).innerText,
+            stopNumber:  document.getElementById(`stopNumber${givenI+1}`).innerText,
             scheduleId: `${this.state.scheduleData[0].id}`, ////where to get scheduleId from??
-            customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
+            customerId: document.getElementById(`customerSelect${givenI+1}`).value// in state needs to be set from dropdown value?
         } 
         console.log('handlesubmitstop', JSON.stringify(alterStopData));
         fetch("https://allin1ship.herokuapp.com/alterScheduleStops", {
@@ -183,7 +188,8 @@ class EditSchedule extends React.Component {
             this.postStopTask(stopData.tasks)
             return response.json();*/
     
-        }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
+        }).then(json => this.postStopTask(this.state[`tasks${givenI+1}`], this.state.routeData[givenI].schedule_stop_id))
+        .catch(err => console.log(err))
     }
     
     handleSubmit = (e) => {
