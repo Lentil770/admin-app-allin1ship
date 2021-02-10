@@ -28,7 +28,7 @@ class EditSchedule extends React.Component {
         fetch("https://allin1ship.herokuapp.com/getNumberRoutes")
         .then(response => response.json())
         .then(json => this.setState({routesList: json}))
-        .then(e => console.log('gotroutes, routes:', this.state.routes))
+        .then(() => console.log('gotroutes, routes:', this.state.routesList))
         .catch(err => console.log(err))
     }
 
@@ -62,10 +62,43 @@ class EditSchedule extends React.Component {
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
                 {/*<button type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</button>*/}
-                <button type='button' onClick={() => console.log(this.state)}>delete row</button>
             </tr>)
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         }
+    }
+
+    setNewRouteTableData = (routeJson) => {
+        this.setState({routeTableData: []})
+        console.log(this.state.routeData, routeJson);
+        let newRouteData = routeJson;
+        for (let i=0;i<newRouteData.length;i++) {
+            const tableRow = (<tr>
+                <td id={`stopNumber${newRouteData[i].stop_number}`}>{newRouteData[i].stop_number}</td>
+                <td id={newRouteData[i].stop_number}><select id={`customerSelect${newRouteData[i].stop_number}`}><option key='0' value={newRouteData[i].customer_id} >{newRouteData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
+                <td ><textarea onChange={tasktext => this.setState({[`tasks${newRouteData[i].stop_number}`]: tasktext.target.value })}
+                    rows='3' cols='35' id={`tasks${newRouteData[i].stop_number}`} defaultValue={this.state[`tasks${newRouteData[i].stop_number}`]} name={`taskTextArea${newRouteData[i].stop_number}`}
+                ></textarea></td> 
+                {/*<button type='button' onClick={() => this.deleteRouteRow(newRouteData[i].stop_number)}>delete row</button>*/}
+            </tr>)
+            this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+        }
+    }
+
+    addRouteRow = () => {
+        const { routeTableData } = this.state;
+        const tableRow = (<tr key={`stopNumber${routeTableData.length + 1}`}>
+            <td id={`stopNumber${routeTableData.length + 1}`}>{routeTableData.length + 1}</td>
+            <td id={routeTableData.length + 1}><select id={`customerSelect${routeTableData.length + 1}`}><option value="none" selected disabled hidden> 
+                        Select Customer
+                    </option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
+            <td ><textarea onChange={tasktext => this.setState({[`tasks${routeTableData.length + 1}`]: tasktext.target.value })}
+                rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
+            >
+            </textarea></td> 
+            {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
+        </tr>)
+        this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+        this.setState({routeData: [...this.state.routeData, {schedule_stop_id: null, customer_id: null, stop_number: routeTableData.length + 1, }]})
     }
 
     formatTasks = (json, stopi) => {
@@ -95,7 +128,7 @@ class EditSchedule extends React.Component {
     }
 
     getInitialRouteData = () => {
-        this.setState({routeData: null})
+        this.setState({routeData: []})
         const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + this.state.scheduleData[0].id;
         fetch(url)
         .then(response => response.json())
@@ -107,13 +140,17 @@ class EditSchedule extends React.Component {
     }
 //deal with!
     getRouteData = () => {
-        this.setState({routeData: null})
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        console.log('getroutedata running');
+        this.setState({routeData: []})
+        const url = "https://allin1ship.herokuapp.com/defaultRouteDisplay/" + document.getElementById("selectRoute").value;
+        console.log(url);
         fetch(url)
         .then(response => response.json())
-        .then(json => this.setState({routeData: json}))
-        .then(() => this.setRouteTableData())
-        .catch(err => console.log(err))
+        .then(json => {
+            console.log('getroutedata json:', json);
+            this.setState({routeData: json})
+            this.setNewRouteTableData(json)
+        }).catch(err => console.log(err))
     }
 
     //works:)
@@ -124,8 +161,8 @@ class EditSchedule extends React.Component {
         console.log(url);
         fetch(url)
         .then(response => {
-            if(response.ok) return response.json()
-            else {throw new Error}
+            if(response.ok) {return response.json()}
+            else {throw new Error()}
             
         })
         .then(json => {
@@ -220,8 +257,9 @@ class EditSchedule extends React.Component {
 }
 
     handleRouteChange = (e) => {
-        console.log(document.getElementById("selectRoute").value)
-        this.setState({selectedRoute: e.target.value})
+        console.log('handle route change running selectroute dropdown value', document.getElementById("selectRoute").value)
+        console.log(e.target.value);
+        this.setState({selectedDefaultRoute: e.target.value})
         this.getRouteData()
     }
 
@@ -296,8 +334,8 @@ class EditSchedule extends React.Component {
                    
                     DRIVER:<br/>
                     <select onChange={this.handleDriverChange}>
-                        <option value={this.state.scheduleData && this.state.scheduleData[0].driver} selected disabled hidden> 
-                            {this.state.scheduleData && this.state.scheduleData[0].driver}
+                        <option value={this.state.scheduleData && this.state.selectedSchedule} selected disabled hidden> 
+                            {this.state.scheduleData && this.state.selectedSchedule}
                         </option>
                             {driverOptions}
                         <option value={() => document.getElementById('new-driver').value} > 
@@ -332,7 +370,7 @@ class EditSchedule extends React.Component {
                     </select><br/>
                     <table>
                         <thead>
-                            <tr><th>selected route #:{this.state.scheduleData && this.state.scheduleData[0].route_id}</th></tr>
+                            <tr><th>selected route #:{this.state.selectedDefaultRoute && this.state.selectedDefaultRoute}</th></tr>
                             <tr>
                                 <th>Stop #</th>
                                 <th>Address</th>
@@ -342,6 +380,8 @@ class EditSchedule extends React.Component {
                         <tbody>
                             {this.state.routeTableData}
                         </tbody>
+                       <button type='button' onClick={() => this.addRouteRow()}>add row</button>
+                       <button type='button' onClick={() => console.log(this.state)}>conjsolelog</button>
                     </table>
                    {/* LEFT IN TO COPY FOR NEW FORM IF WANTED
                     DRIVER:<br/>

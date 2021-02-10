@@ -17,7 +17,7 @@ class CreateSchedule extends React.Component {
         selectedDriver: null,
         selectedVehicle: null,
         routeTableData: [],
-        selectedDropOffInfo: 'Thank you for the hard work today, it is greatly appreciated. You’re the front line workers in our company and your hard work shows! Please park the van, near the office, if you cannot find parking you can always use the driveway at 740 Montgomery St, (The driveway is narrow so just be alert). Rest up, looking forward to seeing you at the next drive!',
+        selectedDropOffInfo: 'Thank you for the hard work today, it is greatly appreciated. You’re the front line workers in our company and your hard work shows! Please park the van near the office. If you cannot find parking you can always use the driveway at 740 Montgomery St (The driveway is narrow so just be alert). Rest up, looking forward to seeing you at the next drive!',
         customersList: (givenData) => givenData && givenData.map((customer) => 
             <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
             )

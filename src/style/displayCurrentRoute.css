@@ -1,0 +1,11 @@
+.currentRouteTd {
+    border: solid 2px black;
+}
+
+.taskComplete {
+    color: green;
+}
+
+.taskIncomplete {
+    color: red;
+}
