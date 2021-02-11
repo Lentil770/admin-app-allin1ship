@@ -75,7 +75,7 @@ class CreateSchedule extends React.Component {
         //
         const { routeData } = this.state;
         for (let i=0;i<routeData.length;i++) {
-            const tableRow = (<tr key={routeData[i].stop_number} >
+            const tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
@@ -242,6 +242,32 @@ class CreateSchedule extends React.Component {
         this.postScheduleStops(i)
         }*/
     }
+
+    handleDrag = (e) => {
+        this.setState({dragId: e.currentTarget.id})
+    }
+
+    handleDrop = (e) => {
+        console.log('handleDrop', e.currentTarget.id);
+        const { routeTableData, dragId } = this.state;
+        const dragRow = routeTableData.find((route) => route.props.id === dragId)
+        const dropRow = routeTableData.find((route) => route.props.id === e.currentTarget.id)
+
+        const dragRowOrder = dragRow.id;
+        const dropRowOrder = dropRow.id;
+
+        const newRowState = routeTableData.map((route) => {
+            if (route.id === dragId) {
+                route.id = dropRowOrder;
+            }
+            if (route.id === e.currentTarget.id) {
+                route.id = dragRowOrder;
+            }
+            return route
+        })
+
+        this.setState({routeTableData: newRowState})
+    }
 /*
     //this.state.routeData[i].comments
     handleCommentChanges = () => {
@@ -356,9 +382,9 @@ class CreateSchedule extends React.Component {
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
-                    <option value="Driver">Driver</option>
-                    <br/>                                     
+                    <option value="Driver">Driver</option>                                     
                     </select><br/>
+                    <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
                     <select required onChange={this.handleVehicleChange}>
                         <option value="none" selected disabled hidden>
@@ -385,6 +411,7 @@ class CreateSchedule extends React.Component {
                     
                     Rest up, looking forward to seeing you at the next drive!</textarea><br/><br/>
                     ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
+                    <input type='button' onClick={() => console.log(this.state)}/>
                     <select id='selectRoute' onChange={this.handleRouteChange}>
                         <option value="" selected disabled hidden>Choose Route</option>
                         {optionsRoutes}
