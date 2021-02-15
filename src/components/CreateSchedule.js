@@ -114,7 +114,7 @@ class CreateSchedule extends React.Component {
 
     getRouteData = () => {
         this.setState({routeData: null})
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        const url = "https://allin1ship.herokuapp.com/defaultRouteDisplay/" + document.getElementById("selectRoute").value;
         fetch(url)
         .then(response => response.json())
         .then(json => {
