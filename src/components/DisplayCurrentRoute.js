@@ -51,6 +51,7 @@ class DisplayCurrentRoute extends React.Component {
         
     }
 
+    /* not used anywherE?
     renderTaskDetails = () => {
         let taskDetailsTable = []
         console.log(this.state);
@@ -59,7 +60,7 @@ class DisplayCurrentRoute extends React.Component {
             if (this.state[`tasks${i}`].length>0) taskDetailsTable.push(<tr><td>{i+1}</td><td>{this.state[`tasks${i}`][0].task}</td></tr>)
         }
         return taskDetailsTable;
-    }
+    }*/
 
     renderTask = (index, json) => {
         console.log(json);
@@ -140,7 +141,7 @@ class DisplayCurrentRoute extends React.Component {
                             </tr>}
                         </thead>
                         <tbody>
-                            {this.state.taskTable.sort((a, b) => a.schedule_stop_id - b.schedule_stop_id)}
+                            {this.state.taskTable/*.sort((a, b) => a.schedule_stop_id - b.schedule_stop_id)*/}
                         </tbody>
                     </table></>}
             </main>
