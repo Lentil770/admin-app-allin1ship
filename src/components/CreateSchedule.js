@@ -372,7 +372,7 @@ class CreateSchedule extends React.Component {
                 <form onSubmit={this.handleSubmit}>
                 <br/><legend>New Schedule #{this.state.newScheduleNumber}</legend><br/>
                     <label htmlFor="schedule-date">Date:</label><br/>
-                    <input type="date" id="schedule-date" value={todaysDate} required onChange={this.handleDateChange}/><br/><br/>
+                    <input type="date" id="schedule-date" defaultValue={todaysDate} required onChange={this.handleDateChange}/><br/><br/>
                    
                     DRIVER:<br/>
                     <select onChange={this.handleDriverChange}>

@@ -36,8 +36,8 @@ class DisplayCurrentRoute extends React.Component {
 
     fetchRoute = (driver, selectedDate) => {
         this.setState({taskTable: []})
-        console.log(`https://allin1ship.herokuapp.com/getcurrentRouteDetails2/${driver}/${encodeURI(selectedDate)}`);
-        fetch(`https://allin1ship.herokuapp.com/getcurrentRouteDetails2/${driver}/${encodeURI(selectedDate)}`)
+        console.log(`https://allin1ship.herokuapp.com/getcurrentRouteDetails/${driver}/${encodeURI(selectedDate)}`);
+        fetch(`https://allin1ship.herokuapp.com/getcurrentRouteDetails/${driver}/${encodeURI(selectedDate)}`)
             .then(response => response.json())
             .then(json => {
                 this.setState({routeData: json})
