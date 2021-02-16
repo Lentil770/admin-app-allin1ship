@@ -53,7 +53,7 @@ class CreateSchedule extends React.Component {
                 rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
             >
             </textarea></td> 
-            <a onClick={() => this.deleteRouteRow(routeTableData.length + 1)} >delete</a>
+            <input type='button' onClick={(e) => this.deleteRouteRow(e, routeTableData.length + 1)} value='delete row' />
             {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
         </tr>)
         this.setState({routeTableData: [...this.state.routeTableData, tableRow], routeData: [...this.state.routeData, {stop_number: routeTableData.length + 1}]})
@@ -104,6 +104,7 @@ class CreateSchedule extends React.Component {
         //
         const { routeData } = this.state;
         console.log(routeData);
+        let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
             let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
@@ -113,8 +114,9 @@ class CreateSchedule extends React.Component {
                 ></textarea></td> 
                 <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
             </tr>) 
-            this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+            arrayToRender.push(tableRow)
         }
+        this.setState({routeTableData: arrayToRender})
     }
 
     formatTasks = (json, stopi) => {
