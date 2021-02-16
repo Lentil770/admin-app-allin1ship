@@ -69,12 +69,14 @@ class CreateSchedule extends React.Component {
         
     }*/
 
-    //NOT WORKINGGGGGVGGGGG
-    //try splicing by obj.stop_number ssomehow instead of index...
+    //tried to splice - WRONG FUNC RETURNS ONLY THE CUT OBJ. INDTEAD FILTERED.
     deleteRouteRow = (e, rowNumber) => {
-        //e.preventDefault()
+        e.preventDefault()
         const { routeData } = this.state;
         const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
+        for (let i=0;i<filteredRouteData.length;i++){
+            filteredRouteData[i].stop_number = i+1
+        }
         console.log(filteredRouteData);
         this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
     }
