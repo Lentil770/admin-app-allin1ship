@@ -53,9 +53,10 @@ class CreateSchedule extends React.Component {
                 rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
             >
             </textarea></td> 
+            <a onClick={() => this.deleteRouteRow(routeTableData.length + 1)} >delete</a>
             {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
         </tr>)
-        this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+        this.setState({routeTableData: [...this.state.routeTableData, tableRow], routeData: [...this.state.routeData, {stop_number: routeTableData.length + 1}]})
     }
     /*deleteRouteRow = (rowNumber) => {
         //somehow delete selected row from state. shdnt be too hard with stop_number
@@ -67,22 +68,51 @@ class CreateSchedule extends React.Component {
         console.log('aftersplice:', this.state.routeTableData);
         
     }*/
+
+    //NOT WORKINGGGGGVGGGGG
+    //try splicing by obj.stop_number ssomehow instead of index...
+    deleteRouteRow = (e, rowNumber) => {
+        //e.preventDefault()
+        const { routeData } = this.state;
+        const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
+        console.log(filteredRouteData);
+        this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
+    }
+    /*deleteRouteRow = (rowNumber) => {
+        console.log(rowNumber)
+        let rowToDelete = rowNumber + 1;
+        const { routeData } = this.state;
+        let i = routeData.length
+        while(i--) {
+            if (routeData[i]
+                && routeData[i].hasOwnProperty('stop_number')
+                && routeData[i]['stop_number'] === rowToDelete) {
+                    routeData.splice(i,1)
+                }  
+            }
+            this.setState({routeTableData: []}, this.setRouteTableData)
+        }*/
+        /*
+        console.log('deleting index:', routedata.findIndex(route => route.stop_number === rowNumber+1))
+        const splicedArray = routedata.splice(routedata.findIndex(route => route.stop_number === rowNumber+1), 1)
+        this.setState({routeData: splicedArray, routeTableData: []}, () => this.setRouteTableData())*/
+    
     
 
     setRouteTableData = () => {
-        this.setState({routeTableData: []})
-        console.log(this.state.routeData);
+        //this.setState({routeTableData: []})
         //
         const { routeData } = this.state;
+        console.log(routeData);
         for (let i=0;i<routeData.length;i++) {
-            const tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
+            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} /*defaultValue={this.state[`tasks${routeData[i].stop_number}`]}*/ name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
-                {/*<input type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</input>*/}
-            </tr>)
+                <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
+            </tr>) 
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         }
     }
@@ -118,7 +148,7 @@ class CreateSchedule extends React.Component {
         fetch(url)
         .then(response => response.json())
         .then(json => {
-            this.setState({routeData: json})
+            this.setState({routeData: json, routeTableData: []})
             console.log(json);
             //this.getTasks(json.map((obj) => obj.id))
         }).then(() => this.setRouteTableData())
@@ -372,7 +402,7 @@ class CreateSchedule extends React.Component {
                 <form onSubmit={this.handleSubmit}>
                 <br/><legend>New Schedule #{this.state.newScheduleNumber}</legend><br/>
                     <label htmlFor="schedule-date">Date:</label><br/>
-                    <input type="date" id="schedule-date" value={todaysDate} required onChange={this.handleDateChange}/><br/><br/>
+                    <input type="date" id="schedule-date" defaultValue={todaysDate} required onChange={this.handleDateChange}/><br/><br/>
                    
                     DRIVER:<br/>
                     <select onChange={this.handleDriverChange}>
@@ -411,7 +441,6 @@ class CreateSchedule extends React.Component {
                     
                     Rest up, looking forward to seeing you at the next drive!</textarea><br/><br/>
                     ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
-                    <input type='button' onClick={() => console.log(this.state)}/>
                     <select id='selectRoute' onChange={this.handleRouteChange}>
                         <option value="" selected disabled hidden>Choose Route</option>
                         {optionsRoutes}
