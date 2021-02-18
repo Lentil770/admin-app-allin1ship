@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Route } from 'react-router-dom';
 
 class CreateSchedule extends React.Component {
     state = {
@@ -281,16 +281,16 @@ class CreateSchedule extends React.Component {
         this.setState({dragId: e.currentTarget.id})
     }
 
-    handleDrop = (e) => {
-        console.log('handleDrop', e.currentTarget.id);
-        const { routeTableData, dragId } = this.state;
-        const dragRow = routeTableData.find((route) => route.props.id === dragId)
-        const dropRow = routeTableData.find((route) => route.props.id === e.currentTarget.id)
+    handleDropB = (e) => {
+        const { routeData, dragId } = this.state;
+        console.log('handleDrop', dragId, e.currentTarget.id);
+        const dragRow = routeData.find((route) => route.id === dragId)
+        const dropRow = routeData.find((route) => route.id === e.currentTarget.id)
 
         const dragRowOrder = dragRow.id;
         const dropRowOrder = dropRow.id;
 
-        const newRowState = routeTableData.map((route) => {
+        const newRowState = routeData.map((route) => {
             if (route.id === dragId) {
                 route.id = dropRowOrder;
             }
@@ -300,7 +300,66 @@ class CreateSchedule extends React.Component {
             return route
         })
 
-        this.setState({routeTableData: newRowState})
+        this.setState({routeData: newRowState})
+    }
+
+    handleDrop = (e) => {
+        const { routeData, dragId } = this.state;
+        console.log('handleDrop', routeData, e.currentTarget.id, dragId);
+        const dragValue = parseInt(dragId)
+        const dropValue = parseInt(e.currentTarget.id)
+
+        const dragRow = routeData.find((route) => route.stop_number === dragValue)
+        const dropRow = routeData.find((route) => route.stop_number === dropValue)
+        console.log(dragValue, dropValue, dragRow, dropRow);
+
+        let newRouteData = routeData
+        newRouteData.forEach((route) => {
+            if (route.stop_number === dragValue) {
+                console.log(dragRow, dropRow);
+                route.customer_id = dropRow.customer_id
+                route.customer_name =dropRow.customer_name
+                route.address = dropRow.address
+            } 
+            if (route.stop_number === dropValue) {
+                console.log(route.stop_number, dropValue, dragRow);
+                route.customer_id = dragRow.customer_id
+                route.customer_name =dragRow.customer_name
+                route.address = dragRow.address
+            }
+        });
+        //newRouteData.forEach((route) => route.stop_number === dropValue ? route.stop_number = dragValue : console.log('hello again', dragValue, route.stop_number, dropValue));
+        /*
+                route.stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+            return route
+        )*/
+        /*const newRouteData = routeData.forEach((route) => {
+            if (route.stop_number === dragId) {
+                console.log('hello', route.stop_number, e.currentTarget.id);
+                route.stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+            return route
+        })*/ /*
+        for (let i=0;i<routeData.length;i++) {
+            const newRouteData = [];
+            if (routeData[i].stop_number === dragId) {
+                console.log('hello', route[i].stop_number, e.currentTarget.id);
+                newRouteData.push
+                route[i].stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+        }*/
+        console.log(newRouteData);
+        this.setState({routeData: newRouteData}, this.setRouteTableData)
     }
 /*
     //this.state.routeData[i].comments
