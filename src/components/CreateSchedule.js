@@ -105,7 +105,7 @@ class CreateSchedule extends React.Component {
         //this.setState({routeTableData: []})
         //
         const { routeData } = this.state;
-        console.log(routeData);
+        console.log('setroutetabledata, routedata: ', routeData);
         let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
             let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
@@ -277,10 +277,30 @@ class CreateSchedule extends React.Component {
         }*/
     }
 
+    /*const handleDragEnter = e => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      const handleDragLeave = e => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      const handleDragOver = e => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      const handleDrop = e => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+*/
     handleDrag = (e) => {
+        e.preventDefault()
+        e.preventPropogation()
         this.setState({dragId: e.currentTarget.id})
+        console.log('draging', e.currentTarget.id);
     }
-
+/*
     handleDropB = (e) => {
         const { routeData, dragId } = this.state;
         console.log('handleDrop', dragId, e.currentTarget.id);
@@ -302,15 +322,18 @@ class CreateSchedule extends React.Component {
 
         this.setState({routeData: newRowState})
     }
-
+*/
     handleDrop = (e) => {
-        const { routeData, dragId } = this.state;
+        const routeData = this.state.routeData;
+        const dragId = this.state.dragId;
+          //why is this log already gibing same customer data for both?
         console.log('handleDrop', routeData, e.currentTarget.id, dragId);
         const dragValue = parseInt(dragId)
         const dropValue = parseInt(e.currentTarget.id)
 
         const dragRow = routeData.find((route) => route.stop_number === dragValue)
         const dropRow = routeData.find((route) => route.stop_number === dropValue)
+        //why is this log already gibing same customer data for both?
         console.log(dragValue, dropValue, dragRow, dropRow);
 
         let newRouteData = routeData
@@ -475,7 +498,8 @@ class CreateSchedule extends React.Component {
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
-                    <option value="Driver">Driver</option>                                     
+                    <option value="Driver">Driver</option>
+                    <option value='Jeffrey'>Jeffrey</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
