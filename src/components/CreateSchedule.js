@@ -41,8 +41,8 @@ class CreateSchedule extends React.Component {
         .then(() => console.log(this.state))
         .catch(err => console.log(err))
     }
-
-    addRouteRow = () => {
+/*
+    addRouteRowB = () => {
         const { routeTableData } = this.state;
         const tableRow = (<tr key={`stopNumber${routeTableData.length + 1}`}>
             <td id={`stopNumber${routeTableData.length + 1}`}>{routeTableData.length + 1}</td>
@@ -54,9 +54,13 @@ class CreateSchedule extends React.Component {
             >
             </textarea></td> 
             <input type='button' onClick={(e) => this.deleteRouteRow(e, routeTableData.length + 1)} value='delete row' />
-            {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
         </tr>)
         this.setState({routeTableData: [...this.state.routeTableData, tableRow], routeData: [...this.state.routeData, {stop_number: routeTableData.length + 1}]})
+    }*/
+
+    addRouteRow = () => {
+        
+        this.setState({routeTableData: [], routeData: [...this.state.routeData, {stop_number: this.state.routeTableData.length + 1}]}, this.setRouteTableData)
     }
     /*deleteRouteRow = (rowNumber) => {
         //somehow delete selected row from state. shdnt be too hard with stop_number
@@ -105,14 +109,18 @@ class CreateSchedule extends React.Component {
         //this.setState({routeTableData: []})
         //
         const { routeData } = this.state;
-        console.log('setroutetabledata, routedata: ', routeData);
+        console.log(routeData);
         let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
-            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
+            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
+                draggable={true} 
+                
+                onDragStart={this.handleDrag} 
+                onDrop={this.handleDrop}>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
-                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} /*defaultValue={this.state[`tasks${routeData[i].stop_number}`]}*/ name={`taskTextArea${routeData[i].stop_number}`}
+                <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
                 <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
             </tr>) 
@@ -277,31 +285,45 @@ class CreateSchedule extends React.Component {
         }*/
     }
 
-    /*const handleDragEnter = e => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-      const handleDragLeave = e => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-      const handleDragOver = e => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-      const handleDrop = e => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-*/
     handleDrag = (e) => {
         e.preventDefault()
-        e.preventPropogation()
-        this.setState({dragId: e.currentTarget.id})
         console.log('draging', e.currentTarget.id);
+        this.setState({dragId: e.currentTarget.id})
     }
-/*
-    handleDropB = (e) => {
+
+    handleDragOver = (e) => {
+        console.log('handledragover', e.currentTarget.id);
+        e.preventDefault()
+        e.stopPropogation()
+    }
+    handleDrop = (e) => {
+        e.preventDefault()
+        e.stopPropogation()
+        const { routeData, dragId } = this.state;
+        console.log('handleDrop', routeData, e.currentTarget.id, dragId);
+        const dragValue = parseInt(dragId)
+        const dropValue = parseInt(e.currentTarget.id)
+
+        const dragRow = routeData.find((route) => route.stop_number === dragValue)
+        const dropRow = routeData.find((route) => route.stop_number === dropValue)
+        console.log(dragValue, dropValue, dragRow, dropRow);
+
+        let newRouteData = routeData
+        newRouteData.forEach((route) => {
+            if (route.stop_number === dragValue) {
+                console.log(dragRow, dropRow);
+                route.customer_id = dropRow.customer_id
+                route.customer_name =dropRow.customer_name
+                route.address = dropRow.address
+            } 
+            if (route.stop_number === dropValue) {
+                console.log(route.stop_number, dropValue, dragRow);
+                route.customer_id = dragRow.customer_id
+                route.customer_name =dragRow.customer_name
+                route.address = dragRow.address
+            }
+        });
+    /*handleDropB = (e) => {
         const { routeData, dragId } = this.state;
         console.log('handleDrop', dragId, e.currentTarget.id);
         const dragRow = routeData.find((route) => route.id === dragId)
@@ -323,34 +345,6 @@ class CreateSchedule extends React.Component {
         this.setState({routeData: newRowState})
     }
 */
-    handleDrop = (e) => {
-        const routeData = this.state.routeData;
-        const dragId = this.state.dragId;
-          //why is this log already gibing same customer data for both?
-        console.log('handleDrop', routeData, e.currentTarget.id, dragId);
-        const dragValue = parseInt(dragId)
-        const dropValue = parseInt(e.currentTarget.id)
-
-        const dragRow = routeData.find((route) => route.stop_number === dragValue)
-        const dropRow = routeData.find((route) => route.stop_number === dropValue)
-        //why is this log already gibing same customer data for both?
-        console.log(dragValue, dropValue, dragRow, dropRow);
-
-        let newRouteData = routeData
-        newRouteData.forEach((route) => {
-            if (route.stop_number === dragValue) {
-                console.log(dragRow, dropRow);
-                route.customer_id = dropRow.customer_id
-                route.customer_name =dropRow.customer_name
-                route.address = dropRow.address
-            } 
-            if (route.stop_number === dropValue) {
-                console.log(route.stop_number, dropValue, dragRow);
-                route.customer_id = dragRow.customer_id
-                route.customer_name =dragRow.customer_name
-                route.address = dragRow.address
-            }
-        });
         //newRouteData.forEach((route) => route.stop_number === dropValue ? route.stop_number = dragValue : console.log('hello again', dragValue, route.stop_number, dropValue));
         /*
                 route.stop_number = e.currentTarget.id
@@ -498,8 +492,7 @@ class CreateSchedule extends React.Component {
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
-                    <option value="Driver">Driver</option>
-                    <option value='Jeffrey'>Jeffrey</option>                                     
+                    <option value="Driver">Driver</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
