@@ -83,6 +83,10 @@ class CreateSchedule extends React.Component {
         }
         console.log(filteredRouteData);
         this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
+        this.setState({[`tasks${rowNumber}`]: null})
+        for (let i=rowNumber;i<=routeData.length;i++) {
+            this.setState({[`tasks${i}`]: this.state[`tasks${i+1}`]})
+        }
     }
     /*deleteRouteRow = (rowNumber) => {
         console.log(rowNumber)
@@ -492,7 +496,8 @@ class CreateSchedule extends React.Component {
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
-                    <option value="Driver">Driver</option>                                     
+                    <option value="Driver">Driver</option>       
+                    <option value="Jeffrey">Jeffrey</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
