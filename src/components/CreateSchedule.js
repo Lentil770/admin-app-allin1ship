@@ -442,7 +442,7 @@ class CreateSchedule extends React.Component {
 }*/
 
     handleRouteChange = (e) => {
-        console.log(document.getElementById("selectRoute").value)
+        //console.log(document.getElementById("selectRoute").value)
         this.setState({selectedRoute: e.target.value})
         this.getRouteData()
     }
@@ -549,7 +549,7 @@ class CreateSchedule extends React.Component {
                     <button type='submit'>SUBMIT</button><br/>
                 </form>
                 
-                <Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>
+                {/*<Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>*/}
             </main>
         </div>
     }
