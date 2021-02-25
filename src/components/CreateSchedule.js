@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Route } from 'react-router-dom';
 
 class CreateSchedule extends React.Component {
     state = {
@@ -41,8 +41,8 @@ class CreateSchedule extends React.Component {
         .then(() => console.log(this.state))
         .catch(err => console.log(err))
     }
-
-    addRouteRow = () => {
+/*
+    addRouteRowB = () => {
         const { routeTableData } = this.state;
         const tableRow = (<tr key={`stopNumber${routeTableData.length + 1}`}>
             <td id={`stopNumber${routeTableData.length + 1}`}>{routeTableData.length + 1}</td>
@@ -53,9 +53,14 @@ class CreateSchedule extends React.Component {
                 rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
             >
             </textarea></td> 
-            {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
+            <input type='button' onClick={(e) => this.deleteRouteRow(e, routeTableData.length + 1)} value='delete row' />
         </tr>)
-        this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+        this.setState({routeTableData: [...this.state.routeTableData, tableRow], routeData: [...this.state.routeData, {stop_number: routeTableData.length + 1}]})
+    }*/
+
+    addRouteRow = () => {
+        
+        this.setState({routeTableData: [], routeData: [...this.state.routeData, {stop_number: this.state.routeTableData.length + 1}]}, this.setRouteTableData)
     }
     /*deleteRouteRow = (rowNumber) => {
         //somehow delete selected row from state. shdnt be too hard with stop_number
@@ -67,24 +72,65 @@ class CreateSchedule extends React.Component {
         console.log('aftersplice:', this.state.routeTableData);
         
     }*/
+
+    //tried to splice - WRONG FUNC RETURNS ONLY THE CUT OBJ. INDTEAD FILTERED.
+    deleteRouteRow = (e, rowNumber) => {
+        e.preventDefault()
+        const { routeData } = this.state;
+        const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
+        for (let i=0;i<filteredRouteData.length;i++){
+            filteredRouteData[i].stop_number = i+1
+        }
+        console.log(filteredRouteData);
+        this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
+        this.setState({[`tasks${rowNumber}`]: null})
+        for (let i=rowNumber;i<=routeData.length;i++) {
+            this.setState({[`tasks${i}`]: this.state[`tasks${i+1}`]})
+        }
+    }
+    /*deleteRouteRow = (rowNumber) => {
+        console.log(rowNumber)
+        let rowToDelete = rowNumber + 1;
+        const { routeData } = this.state;
+        let i = routeData.length
+        while(i--) {
+            if (routeData[i]
+                && routeData[i].hasOwnProperty('stop_number')
+                && routeData[i]['stop_number'] === rowToDelete) {
+                    routeData.splice(i,1)
+                }  
+            }
+            this.setState({routeTableData: []}, this.setRouteTableData)
+        }*/
+        /*
+        console.log('deleting index:', routedata.findIndex(route => route.stop_number === rowNumber+1))
+        const splicedArray = routedata.splice(routedata.findIndex(route => route.stop_number === rowNumber+1), 1)
+        this.setState({routeData: splicedArray, routeTableData: []}, () => this.setRouteTableData())*/
+    
     
 
     setRouteTableData = () => {
-        this.setState({routeTableData: []})
-        console.log(this.state.routeData);
+        //this.setState({routeTableData: []})
         //
         const { routeData } = this.state;
+        console.log(routeData);
+        let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
-            const tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} draggable={true} onDragOver={(e) => e.preventDefault()} onDragStart={this.handleDrag} onDrop={this.handleDrop}>
+            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
+                draggable={true} 
+                
+                onDragStart={this.handleDrag} 
+                onDrop={this.handleDrop}>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext })}
-                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} /*defaultValue={this.state[`tasks${routeData[i].stop_number}`]}*/ name={`taskTextArea${routeData[i].stop_number}`}
+                <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
-                {/*<input type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</input>*/}
-            </tr>)
-            this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+                <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
+            </tr>) 
+            arrayToRender.push(tableRow)
         }
+        this.setState({routeTableData: arrayToRender})
     }
 
     formatTasks = (json, stopi) => {
@@ -114,11 +160,11 @@ class CreateSchedule extends React.Component {
 
     getRouteData = () => {
         this.setState({routeData: null})
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        const url = "https://allin1ship.herokuapp.com/defaultRouteDisplay/" + document.getElementById("selectRoute").value;
         fetch(url)
         .then(response => response.json())
         .then(json => {
-            this.setState({routeData: json})
+            this.setState({routeData: json, routeTableData: []})
             console.log(json);
             //this.getTasks(json.map((obj) => obj.id))
         }).then(() => this.setRouteTableData())
@@ -244,19 +290,51 @@ class CreateSchedule extends React.Component {
     }
 
     handleDrag = (e) => {
+        e.preventDefault()
+        console.log('draging', e.currentTarget.id);
         this.setState({dragId: e.currentTarget.id})
     }
 
+    handleDragOver = (e) => {
+        console.log('handledragover', e.currentTarget.id);
+        e.preventDefault()
+        e.stopPropogation()
+    }
     handleDrop = (e) => {
-        console.log('handleDrop', e.currentTarget.id);
-        const { routeTableData, dragId } = this.state;
-        const dragRow = routeTableData.find((route) => route.props.id === dragId)
-        const dropRow = routeTableData.find((route) => route.props.id === e.currentTarget.id)
+        e.preventDefault()
+        e.stopPropogation()
+        const { routeData, dragId } = this.state;
+        console.log('handleDrop', routeData, e.currentTarget.id, dragId);
+        const dragValue = parseInt(dragId)
+        const dropValue = parseInt(e.currentTarget.id)
 
+        const dragRow = routeData.find((route) => route.stop_number === dragValue)
+        const dropRow = routeData.find((route) => route.stop_number === dropValue)
+        console.log(dragValue, dropValue, dragRow, dropRow);
+
+        let newRouteData = routeData
+        newRouteData.forEach((route) => {
+            if (route.stop_number === dragValue) {
+                console.log(dragRow, dropRow);
+                route.customer_id = dropRow.customer_id
+                route.customer_name =dropRow.customer_name
+                route.address = dropRow.address
+            } 
+            if (route.stop_number === dropValue) {
+                console.log(route.stop_number, dropValue, dragRow);
+                route.customer_id = dragRow.customer_id
+                route.customer_name =dragRow.customer_name
+                route.address = dragRow.address
+            }
+        });
+    /*handleDropB = (e) => {
+        const { routeData, dragId } = this.state;
+        console.log('handleDrop', dragId, e.currentTarget.id);
+        const dragRow = routeData.find((route) => route.id === dragId)
+        const dropRow = routeData.find((route) => route.id === e.currentTarget.id)
         const dragRowOrder = dragRow.id;
         const dropRowOrder = dropRow.id;
-
-        const newRowState = routeTableData.map((route) => {
+        const newRowState = routeData.map((route) => {
             if (route.id === dragId) {
                 route.id = dropRowOrder;
             }
@@ -265,8 +343,41 @@ class CreateSchedule extends React.Component {
             }
             return route
         })
-
-        this.setState({routeTableData: newRowState})
+        this.setState({routeData: newRowState})
+    }
+*/
+        //newRouteData.forEach((route) => route.stop_number === dropValue ? route.stop_number = dragValue : console.log('hello again', dragValue, route.stop_number, dropValue));
+        /*
+                route.stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+            return route
+        )*/
+        /*const newRouteData = routeData.forEach((route) => {
+            if (route.stop_number === dragId) {
+                console.log('hello', route.stop_number, e.currentTarget.id);
+                route.stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+            return route
+        })*/ /*
+        for (let i=0;i<routeData.length;i++) {
+            const newRouteData = [];
+            if (routeData[i].stop_number === dragId) {
+                console.log('hello', route[i].stop_number, e.currentTarget.id);
+                newRouteData.push
+                route[i].stop_number = e.currentTarget.id
+            }
+            if (route.stop_number === e.currentTarget.id) {
+                route.stop_number = dragId
+            }
+        }*/
+        console.log(newRouteData);
+        this.setState({routeData: newRouteData}, this.setRouteTableData)
     }
 /*
     //this.state.routeData[i].comments
@@ -328,7 +439,7 @@ class CreateSchedule extends React.Component {
 }*/
 
     handleRouteChange = (e) => {
-        console.log(document.getElementById("selectRoute").value)
+        //console.log(document.getElementById("selectRoute").value)
         this.setState({selectedRoute: e.target.value})
         this.getRouteData()
     }
@@ -382,7 +493,8 @@ class CreateSchedule extends React.Component {
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
-                    <option value="Driver">Driver</option>                                     
+                    <option value="Driver">Driver</option>       
+                    <option value="Jeffrey">Jeffrey</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
@@ -411,7 +523,6 @@ class CreateSchedule extends React.Component {
                     
                     Rest up, looking forward to seeing you at the next drive!</textarea><br/><br/>
                     ROUTE:<br/> {/*drop down of number for each route_id from fetched data.*/}
-                    <input type='button' onClick={() => console.log(this.state)}/>
                     <select id='selectRoute' onChange={this.handleRouteChange}>
                         <option value="" selected disabled hidden>Choose Route</option>
                         {optionsRoutes}
@@ -435,7 +546,7 @@ class CreateSchedule extends React.Component {
                     <button type='submit'>SUBMIT</button><br/>
                 </form>
                 
-                <Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>
+                {/*<Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>*/}
             </main>
         </div>
     }

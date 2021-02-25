@@ -2,6 +2,7 @@ import React from 'react';
 
 class EditSchedule extends React.Component {
     state = {
+        routeTableData: [],
         customersList: (givenData) => givenData && givenData.map((customer) => 
             <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
             )
@@ -51,20 +52,23 @@ class EditSchedule extends React.Component {
     }
 
     setRouteTableData = () => {
-        this.setState({routeTableData: []})
+        //this.setState({routeTableData: []})
         console.log(this.state.routeData);
         const { routeData } = this.state;
+        let arrayToRender = []
+        
         for (let i=0;i<routeData.length;i++) {
-            const tableRow = (<tr>
+            let tableRow = (<tr>
                 <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 <td ><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
                 ></textarea></td> 
-                {/*<button type='button' onClick={() => this.deleteRouteRow(routeData[i].stop_number)}>delete row</button>*/}
+                 <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
             </tr>)
-            this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
+            arrayToRender.push(tableRow)
         }
+        this.setState({routeTableData: arrayToRender})
     }
 
     setNewRouteTableData = (routeJson) => {
@@ -99,6 +103,17 @@ class EditSchedule extends React.Component {
         </tr>)
         this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
         this.setState({routeData: [...this.state.routeData, {schedule_stop_id: null, customer_id: null, stop_number: routeTableData.length + 1, }]})
+    }
+
+    deleteRouteRow = (e, rowNumber) => {
+        e.preventDefault()
+        const { routeData } = this.state;
+        const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
+        for (let i=0;i<filteredRouteData.length;i++){
+            filteredRouteData[i].stop_number = i+1
+        }
+        console.log(filteredRouteData);
+        this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
     }
 
     formatTasks = (json, stopi) => {
@@ -148,8 +163,7 @@ class EditSchedule extends React.Component {
         .then(response => response.json())
         .then(json => {
             console.log('getroutedata json:', json);
-            this.setState({routeData: json})
-            this.setNewRouteTableData(json)
+            this.setState({routeData: json, routeTableData: []}, this.setRouteTableData )
         }).catch(err => console.log(err))
     }
 
@@ -381,7 +395,6 @@ class EditSchedule extends React.Component {
                             {this.state.routeTableData}
                         </tbody>
                        <button type='button' onClick={() => this.addRouteRow()}>add row</button>
-                       <button type='button' onClick={() => console.log(this.state)}>conjsolelog</button>
                     </table>
                    {/* LEFT IN TO COPY FOR NEW FORM IF WANTED
                     DRIVER:<br/>
@@ -391,7 +404,6 @@ class EditSchedule extends React.Component {
                     </option>
                         {optionsDrivers}
                     </select><br/><br/>
-
                     DROP OFF INFO:<br/>
                     <textarea 
                     onChange={this.handleTextChange}

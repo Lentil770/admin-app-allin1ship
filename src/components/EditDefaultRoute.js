@@ -1,6 +1,6 @@
 import React from 'react';
 
-class EditRoute extends React.Component {
+class EditDefaultRoute extends React.Component {
     state = {
         routes: [{
             "id": 1
@@ -19,11 +19,15 @@ class EditRoute extends React.Component {
 
     getRouteData = () => {
         this.setState({routeData: null});
-        const url = "https://allin1ship.herokuapp.com/singleRouteDisplay/" + document.getElementById("selectRoute").value;
+        const url = "https://allin1ship.herokuapp.com/defaultRouteDisplay/" + document.getElementById("selectRoute").value;
         console.log(url);
         fetch(url)
         .then(response => response.json())
-        .then(json => this.setState({routeData: json}))
+        .then(json => {
+            this.setState({routeData: json, routeTableData: []})
+            console.log(json);
+            //this.getTasks(json.map((obj) => obj.id))
+        }).then(() => this.setRouteTableData())
         .catch(err => console.log(err))
     }
 
@@ -76,23 +80,88 @@ class EditRoute extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         console.log('handlesubmitrunning');
+        //CHANGE THIS, PROB CHANGE ENDPOINT TO DLETE PREV, AND POST ALL NEW
+        //i think i have to work backwards from the server- figure out how to delete the old stops and post all new ones and then figute out how i need to send the new data.
         for (let i=1;i<=this.state.routeData.length;i++) {
             this.postStopChanges(i)
         }
     }
+
+    postScheduleStops = (i) => {
+        //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
+        const postStopData = {
+            stopNumber:  document.getElementById(`stopNumber${i}`).innerText,
+            routeId: `${this.state.selectedRoute}`, ////where to get scheduleId from??
+            customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
+        } 
+        console.log('handlesubmitstop', JSON.stringify(postStopData));
+        fetch("https://allin1ship.herokuapp.com/postScheduleStops", {
+            method: "POST",  
+            headers: {
+                "Content-Type": "application/json"},
+            body: JSON.stringify(postStopData)
+        }).then((response) => {
+            if(response.ok) {
+                return response.json()
+            }
+            else {throw new Error(response.statusText) }
+        }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
+    }
+
 /*
     handleTextChange = (e) => {
         this.setState({selectedDropOffInfo: e.target.value})
     }
 */
 
+    addRouteRow = () => {
+        this.setState({routeTableData: [], routeData: [...this.state.routeData, {stop_number: this.state.routeTableData.length + 1}]}, this.setRouteTableData)
+    }
 
+    handleRouteChange = (e) => {
+        //console.log(document.getElementById("selectRoute").value)
+        this.setState({selectedRoute: e.target.value})
+        this.getRouteData()
+    }
 
-handleRouteChange = (e) => {
-    console.log(document.getElementById("selectRoute").value)
-    this.setState({selectedRoute: e.target.value})
-    this.getRouteData()
-}
+    deleteRouteRow = (e, rowNumber) => {
+        e.preventDefault()
+        const { routeData } = this.state;
+        const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
+        for (let i=0;i<filteredRouteData.length;i++){
+            filteredRouteData[i].stop_number = i+1
+        }
+        console.log(filteredRouteData);
+        this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
+        this.setState({[`tasks${rowNumber}`]: null})
+        for (let i=rowNumber;i<=routeData.length;i++) {
+            this.setState({[`tasks${i}`]: this.state[`tasks${i+1}`]})
+        }
+    }
+
+    setRouteTableData = () => {
+        //this.setState({routeTableData: []})
+        //
+        const { routeData } = this.state;
+        console.log(routeData);
+        let arrayToRender = []
+        for (let i=0;i<routeData.length;i++) {
+            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
+                draggable={true} 
+                
+                onDragStart={this.handleDrag} 
+                onDrop={this.handleDrop}>
+                <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
+                <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
+                {/*<td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
+                ></textarea></td> */}
+                <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
+            </tr>) 
+            arrayToRender.push(tableRow)
+        }
+        this.setState({routeTableData: arrayToRender})
+    }
 
     render() {
         /*left in if wabnt to copy
@@ -115,9 +184,9 @@ handleRouteChange = (e) => {
         //const selectedRouteName = document.getElementById('selectRoute').value;
         //console.log(selectedRouteName);
         return <div style={{padding: '15px'}}>            
-             <main className='EditRoute'>
+             <main className='EditDefaultRoute'>
 
-                <form name='editRoute' onSubmit={this.handleSubmit}>
+                <form name='editDefaultRoute' onSubmit={this.handleSubmit}>
                 <br/><legend>Edit Route</legend><br/>
                    
                     <select id='selectRoute' onChange={this.handleRouteChange}>
@@ -127,24 +196,20 @@ handleRouteChange = (e) => {
 
                     <table>
                         <thead>
-                            {/*<tr><th>Route #:{this.state.selectedRoute}{/*selectedRouteName && selectedRouteName.route_name</th></tr>*/}
-                            <tr>
+                            <tr><th>selected route #:{this.state.selectedRoute}</th></tr>
+                            {this.state.routeData && <tr>
                                 <th>Stop #</th>
-                                <th>Customer</th>
-                                <th>Tasks</th>
-                            </tr>
-                           {/* <span><input type="button" className="button" value="Add another line" onClick={() => this.handleAddStop()} /></span>*/}
+                                <th>Address</th>
+                            </tr>}
                         </thead>
                         <tbody>
-                            {tableRouteData}
+                            {this.state.routeTableData}
                         </tbody>
-                       {/*<button onClick={this.handleCommentChanges}>submit comment changes</button>*/}
+                       <button type='button' onClick={() => this.addRouteRow()}>add row</button>
                     </table>
-
 
                     <button type='submit'>SUBMIT</button><br/>
                 </form>
-            
             </main>
         </div>
     }
@@ -152,4 +217,4 @@ handleRouteChange = (e) => {
 }
 
 
-export default EditRoute;
+export default EditDefaultRoute;
