@@ -332,8 +332,15 @@ class CreateSchedule extends React.Component {
         console.log('handleDrop', dragId, e.currentTarget.id);
         const dragRow = routeData.find((route) => route.id === dragId)
         const dropRow = routeData.find((route) => route.id === e.currentTarget.id)
+<<<<<<< HEAD
         const dragRowOrder = dragRow.id;
         const dropRowOrder = dropRow.id;
+=======
+
+        const dragRowOrder = dragRow.id;
+        const dropRowOrder = dropRow.id;
+
+>>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         const newRowState = routeData.map((route) => {
             if (route.id === dragId) {
                 route.id = dropRowOrder;
@@ -343,6 +350,10 @@ class CreateSchedule extends React.Component {
             }
             return route
         })
+<<<<<<< HEAD
+=======
+
+>>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         this.setState({routeData: newRowState})
     }
 */

@@ -7,7 +7,7 @@ import AddDriver from "./components/AddDriver";
 import AddVehicle from "./components/AddVehicle";
 import EditCustomer from "./components/EditCustomer";
 import EditSchedule from "./components/EditSchedule";
-import EditRoute from "./components/EditRoute";
+import EditDefaultRoute from "./components/EditDefaultRoute";
 import { Route } from 'react-router-dom';
 import DisplayFeedback from './components/DisplayFeedback';
 import DisplayTimestamps from './components/DisplayTimestamps';
@@ -51,7 +51,7 @@ function App() {
       />
       <Route
         path='/edit-route'
-        component={EditRoute}
+        component={EditDefaultRoute}
       />
       <Route
         path='/display-feedback'
