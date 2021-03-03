@@ -23,6 +23,7 @@ class TopBar extends React.Component {
                     {/*<Link to='/display-feedback'><button>VIEW FEEDBACK</button></Link> replaced with view currwnt route data
                     <Link to='/display-timestamps'><button>VIEW TIMESTAMPS</button></Link>* replaced with view curent route data */}
                     <Link to='/display-start-times'><button>VIEW START TIMES</button></Link> {/**shd this be a seperate page? */}
+                    <Link to='/add-driver'><button>NEW DRIVER</button></Link>
                 </div>
             </main>
         </div>
