@@ -10,7 +10,7 @@ class AddDriver extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`https://allin1ship.herokuapp.com/postDriver/${this.state.driverName}`)
+        fetch(`https://allin1ship.herokuapp.com/addDriver/${this.state.driverName}`)
         .then(function(response) {
             console.log(response)
             alert('Driver successfully posted');
