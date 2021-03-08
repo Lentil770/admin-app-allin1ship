@@ -278,7 +278,7 @@ class CreateSchedule extends React.Component {
         const postStopData = {
             stopNumber:  document.getElementById(`stopNumber${i+1}`).innerText,
             scheduleId: `${this.state.newScheduleNumber}`, ////where to get scheduleId from??
-            customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
+            customerId: document.getElementById(`customerSelect${i}`).value// in state needs to be set from dropdown value?
         } 
         console.log('handlesubmitstop', JSON.stringify(postStopData));
         fetch("https://allin1ship.herokuapp.com/postScheduleStops", {
