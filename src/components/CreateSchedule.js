@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, Route } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 class CreateSchedule extends React.Component {
     state = {
@@ -115,71 +114,25 @@ class CreateSchedule extends React.Component {
         //
         const { routeData } = this.state;
         console.log(routeData);
-        let arrayToRender = routeData.map((route, index) => 
-            <Draggable key={index} draggableId={index} index={index}>
-                {(provided) => (
-                    <tr  
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                    >
-                        <td id={`stopNumber${index+1}`}>{index+1}</td>
-                        <td id={index}><select id={`customerSelect${index}`}><option key='0' value={route.customer_id} >{route.customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                        <td><textarea onChange={tasktext => this.setState({[`tasks${index+1}`]: tasktext.target.value })}
-                            rows='3' cols='35' id={`tasks${index+1}`} defaultValue={this.state[`tasks${index+1}`] && this.state[`tasks${index+1}`]} name={`taskTextArea${index+1}`}
-                        ></textarea></td> 
-                        <input type='button' onClick={(e) => this.deleteRouteRow(e, index+1)} value='delete row' />
-                    </tr>
-                )}
-            </Draggable>
-        )
-            //arrayToRender.sort((a, b) => { return a.stop_number - b.stop_number})
-        this.setState({routeTableData: arrayToRender})
-    }
-
-    setRouteTableDataWorking = () => {
-        //this.setState({routeTableData: []})
-        //
-        const { routeData } = this.state;
-        console.log(routeData);
         let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
-            let tableRow = (
-            <Draggable key={routeData[i].stop_number} draggableId={`${routeData[i].stop_number}`} index={routeData[i].stop_number}>
-                {(provided) => (
-                    <tr  
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                    >
-                        <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
-                        <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                        <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
-                            rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
-                        ></textarea></td> 
-                        <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
-                    </tr>
-                )}
-            </Draggable> )
+            let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
+                draggable={true} 
+                
+                onDragStart={this.handleDrag} 
+                onDrop={this.handleDrop}>
+                <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
+                <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
+                <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
+                    rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
+                ></textarea></td> 
+                <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
+            </tr>) 
             arrayToRender.push(tableRow)
-            //arrayToRender.sort((a, b) => { return a.stop_number - b.stop_number})
         }
         this.setState({routeTableData: arrayToRender})
     }
-    /* prev tr incase dragable X work
-    <tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
-                        draggable={true} 
-                        
-                        onDragStart={this.handleDrag} 
-                        onDrop={this.handleDrop}>
-                        <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
-                        <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-                        <td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
-                            rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}
-                        ></textarea></td> 
-                        <input type='button' onClick={(e) => this.deleteRouteRow(e, routeData[i].stop_number)} value='delete row' />
-                    </tr>
-                    */
+
     formatTasks = (json, stopi) => {
         let formatArray = [];
         for (let i=0;i<json.length;i++) {
@@ -278,7 +231,7 @@ class CreateSchedule extends React.Component {
         const postStopData = {
             stopNumber:  document.getElementById(`stopNumber${i+1}`).innerText,
             scheduleId: `${this.state.newScheduleNumber}`, ////where to get scheduleId from??
-            customerId: document.getElementById(`customerSelect${i}`).value// in state needs to be set from dropdown value?
+            customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
         } 
         console.log('handlesubmitstop', JSON.stringify(postStopData));
         fetch("https://allin1ship.herokuapp.com/postScheduleStops", {
@@ -347,29 +300,7 @@ class CreateSchedule extends React.Component {
         e.preventDefault()
         e.stopPropogation()
     }
-
-    handleOnDragEnd = (result) => {
-        console.log(result);
-        const { routeData } = this.state;
-        const newRouteData = Array.from(routeData)
-        console.log('newrowuetdata', newRouteData);
-        const [reorderedItem] = newRouteData.splice(result.source.index-1, 1)
-        newRouteData.splice(result.destination.index-1, 0, reorderedItem)
-  /*      let b = newRouteData[result.source.index-1].stop_number
-        newRouteData[result.source.index-1].stop_number = result.destination.index-1
-        newRouteData[result.destination.index-1].stop_number = b*/
-        /*newRouteData.forEach((route) => {
-            if (route.stop_number <= result.destination.index && route.stop_number > result.source.index) {
-                route.stop_number = route.stop_number - 1
-            }
-            else if (route.stop_number === result.source.index) {
-                route.stop_number = result.destination.index
-            } 
-        });*/
-        
-        this.setState({routeData: newRouteData}, this.setRouteTableData)
-    }
-    /*handleDrop = (e) => {
+    handleDrop = (e) => {
         e.preventDefault()
         e.stopPropogation()
         const { routeData, dragId } = this.state;
@@ -395,14 +326,19 @@ class CreateSchedule extends React.Component {
                 route.customer_name =dragRow.customer_name
                 route.address = dragRow.address
             }
-        });*/
+        });
     /*handleDropB = (e) => {
         const { routeData, dragId } = this.state;
         console.log('handleDrop', dragId, e.currentTarget.id);
         const dragRow = routeData.find((route) => route.id === dragId)
         const dropRow = routeData.find((route) => route.id === e.currentTarget.id)
+<<<<<<< HEAD
         const dragRowOrder = dragRow.id;
         const dropRowOrder = dropRow.id;
+=======
+        const dragRowOrder = dragRow.id;
+        const dropRowOrder = dropRow.id;
+>>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         const newRowState = routeData.map((route) => {
             if (route.id === dragId) {
                 route.id = dropRowOrder;
@@ -412,6 +348,9 @@ class CreateSchedule extends React.Component {
             }
             return route
         })
+<<<<<<< HEAD
+=======
+>>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         this.setState({routeData: newRowState})
     }
 */
@@ -444,7 +383,7 @@ class CreateSchedule extends React.Component {
             if (route.stop_number === e.currentTarget.id) {
                 route.stop_number = dragId
             }
-        }
+        }*/
         console.log(newRouteData);
         this.setState({routeData: newRouteData}, this.setRouteTableData)
     }
@@ -605,17 +544,9 @@ class CreateSchedule extends React.Component {
                                 <th className='editable'>Tasks-Each New Line is a New Task.</th>
                             </tr>}
                         </thead>
-                        <DragDropContext onDragEnd={this.handleOnDragEnd}>
-                            <Droppable droppableId='tableRows' >
-                                {(provided) => (
-                                <tbody className='tableRows' {...provided.droppableProps} ref={provided.innerRef} >
-                                    {this.state.routeTableData}
-                                    {provided.placeholder}
-                                </tbody>
-                                )}    
-                            </Droppable>
-                        </DragDropContext>
-                        
+                        <tbody>
+                            {this.state.routeTableData}
+                        </tbody>
                        <button type='button' onClick={() => this.addRouteRow()}>add row</button>
                     </table>
 
