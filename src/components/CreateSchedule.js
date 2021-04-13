@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, Route } from 'react-router-dom';
+import { checkIfScheduleExists } from '../functions/checkDB';
 
 class CreateSchedule extends React.Component {
     state = {
@@ -262,6 +263,7 @@ class CreateSchedule extends React.Component {
             selectedDropOffInfo: this.state.selectedDropOffInfo
         }
         console.log('handlesubmit', JSON.stringify(postData));
+
         fetch("https://allin1ship.herokuapp.com/postSchedule", {
             method: "POST",  
             headers: {
@@ -282,6 +284,13 @@ class CreateSchedule extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
+        
+        if (!checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate)) {
+            alert(`there is already a schedule for ${this.state.selectedDriver} on ${this.state.selectedDate}`)
+            return
+        }
+        console.log('check if shcheculde already ecists returned true/ x return');
+
         this.postSchedule();
         /*for each row in state.routeStopsData
         for (let i=0;i<this.state.routeTableData.length;i++) {
