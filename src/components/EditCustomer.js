@@ -1,4 +1,5 @@
 import React from 'react';
+import Table from 'react-bootstrap/Table'
 
 class EditCustomer extends React.Component {
     state = {
@@ -9,7 +10,7 @@ class EditCustomer extends React.Component {
 
     getCustomersData = () => {
         console.log('getcustoemrsdata running');
-        const url = "https://allin1ship.herokuapp.com/getCustomersData";
+        const url = "https://allin1ship.herokuapp.com/getAllCustomersData";
         fetch(url)
         .then(response => response.json())
         .then(json => this.setState({customersData: json}))
@@ -25,10 +26,10 @@ class EditCustomer extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const postData = {
-        }
+        const postData = this.state.selectedCustomerData;
+
         console.log('handlesubmit', JSON.stringify(postData));
-        fetch("https://allin1ship.herokuapp.com/postCustomer", {
+        fetch("https://allin1ship.herokuapp.com/editCustomerData", {
             method: "POST",  
             headers: {
                 "Content-Type": "application/json"},
@@ -38,6 +39,36 @@ class EditCustomer extends React.Component {
             alert('customer successfully posted');
             return response.json();
         })
+    }
+
+    handleChange = (name, e) => {
+        console.log(name, e.target.value);
+        const { selectedCustomerData } = this.state;
+        selectedCustomerData[name] = e.target.value;
+        this.setState({selectedCustomerData})
+    }
+
+    renderCustomerData = () => {
+        const { selectedCustomer } = this.state;
+        const renderData = []
+        const customer = selectedCustomer && this.state.customersData.find(customer => customer.customer_id === parseInt(selectedCustomer))
+        console.log(customer);
+        customer && renderData.push(<tr>
+            <td><input onChange={(e) => this.handleChange('customer_name', e)} value={customer.customer_name} /></td>
+            <td><input onChange={(e) => this.handleChange('Address', e)} value={customer.Address} /></td>
+            <td><input onChange={(e) => this.handleChange('location', e)} value={customer.location} /></td>
+            <td><input onChange={(e) => this.handleChange('contact_name', e)} value={customer.contact_name} /></td>
+            <td><input onChange={(e) => this.handleChange('contact_number', e)} value={customer.contact_number} /></td>
+            <td><input onChange={(e) => this.handleChange('comments', e)} value={customer.comments} /></td>
+            <td><input onChange={(e) => this.handleChange('latitude', e)} value={customer.latitude} /></td>
+            <td><input onChange={(e) => this.handleChange('longitude', e)} value={customer.longitude} /></td>
+        </tr>)
+        return renderData
+    }
+
+    handleCustomerSelection = (e) => {
+       const customer = this.state.customersData.find(customer => customer.customer_id === parseInt(e.target.value))
+       this.setState({selectedCustomer: e.target.value, selectedCustomerData: customer})
     }
 
 /*
@@ -58,23 +89,27 @@ class EditCustomer extends React.Component {
                 <form onSubmit={this.handleSubmit}>
                     <br/><legend>Edit customer</legend><br/>
 
-                    <select name='customer' id='select1' >
+                    <select name='customer' id='select1' onChange={this.handleCustomerSelection}>
                         {this.state.customersData && this.state.customersList(this.state.customersData)}</select>
                     according to selected customer - display their data in editable boxes, and uodate state acc to changes, and on submit run a post with data to alter table.
-                   {/* LEFT IN TO COPY FOR NEW FORM IF WANTED
-                    DRIVER:<br/>
-                    <select required onChange={this.handleDriverChange}>
-                    <option value="none" selected disabled hidden> 
-                        Select a Driver 
-                    </option>
-                        {optionsDrivers}
-                    </select><br/><br/>
-
-                    DROP OFF INFO:<br/>
-                    <textarea 
-                    onChange={this.handleTextChange}
-                    name='comment'>Thank you for working hard today, your work means a lot and we appreciate the extra you put in</textarea><br/><br/>
-                   */}
+                    
+                    <Table bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Address</th>
+                                <th>Location</th>
+                                <th>Contact Name</th>
+                                <th>Contact Number</th>
+                                <th>Comments</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.renderCustomerData()}
+                        </tbody>
+                    </Table>
                     
                     <button type='submit'>SUBMIT</button><br/>
                 </form>
