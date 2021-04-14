@@ -19,7 +19,7 @@ class TopBar extends React.Component {
                     <Link to='/add-customer'><button>ADD CUSTOMER</button></Link>
                     <Link to='/edit-customer'><button>EDIT CUSTOMER</button></Link> 
                     <Link to='/edit-schedule'><button>EDIT SCHEDULE</button></Link>
-                    <Link to='/edit-route'><button>EDIT ROUTE</button></Link>
+                    <Link to='/edit-route'><button>EDIT DEFAULT ROUTE</button></Link>
                     {/*<Link to='/display-feedback'><button>VIEW FEEDBACK</button></Link> replaced with view currwnt route data
                     <Link to='/display-timestamps'><button>VIEW TIMESTAMPS</button></Link>* replaced with view curent route data */}
                     <Link to='/display-start-times'><button>VIEW START TIMES</button></Link> {/**shd this be a seperate page? */}

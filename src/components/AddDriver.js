@@ -10,7 +10,7 @@ class AddDriver extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`https://allin1ship.herokuapp.com/addDriver/${this.state.driverName}`)
+        fetch(`https://allin1ship.herokuapp.com/addDriver/${this.state.driverName}/${this.state.password}`)
         .then(function(response) {
             console.log(response)
             alert('Driver successfully posted');
@@ -22,9 +22,15 @@ class AddDriver extends React.Component {
     handleTextChange = (e) => {
         this.setState({selectedDropOffInfo: e.target.value})
     }
-*/handleChange = (e) => {
-            this.setState({driverName: e.target.value})
-        }
+*/  handleChange = (e) => {
+        this.setState({driverName: e.target.value})
+    }
+
+    handlePasswordChange = (e) => {
+        let password = e.target.value;
+        if (password.length > 4) return;
+        this.setState({password})
+    }
     render() {
         /*left in if wabnt to copy
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
@@ -37,7 +43,12 @@ class AddDriver extends React.Component {
 
                 <form onSubmit={this.handleSubmit}>
                 <br/><legend>New Driver</legend><br/>
-                  <input defaultValue='driver name' onChange={this.handleChange}></input>
+                    <p>Driver Name</p>
+                    <input placeholder='driver name' onChange={this.handleChange}></input>
+                    <br/>
+                    <p>Password - 4 Digits</p>
+                    <input type='number' onChange={this.handlePasswordChange} value={this.state.password}></input>
+                    <br/><br/>    
                     <button type='submit'>SUBMIT</button><br/>
                 </form>
             

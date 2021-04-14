@@ -58,9 +58,9 @@ class EditDefaultRoute extends React.Component {
         console.log('poststopchanges running, i:', i, this.state.selectedRoute)
         const stopData = {
             key: i,
-            stop_number: document.getElementById(`stopNumber${i}`).innerText,
-            customer_id: document.getElementById(`customerSelect${i}`).value,
-            notes: document.getElementById(`notes${i}`).innerText
+            stop_number: document.getElementById(`stopNumber${i}`).value,
+            customer_id: document.getElementById(`customerSelect${i}`).value
+            //notes: document.getElementById(`notes${i}`).innerText
         };
         console.log(JSON.stringify(stopData));
         fetch(`https://allin1ship.herokuapp.com/postStopChanges/${this.state.selectedRoute}`, {
@@ -86,14 +86,16 @@ class EditDefaultRoute extends React.Component {
             this.postStopChanges(i)
         }
     }
-
+/*
     postScheduleStops = (i) => {
         //for line in taskbox, run this.postStopTask(task, schedule_stop_id)
+        console.log('stopnumber:', document.getElementById(`stopNumber${i}`).value, 'customerId:', document.getElementById(`customerSelect${i+1}`).value);
         const postStopData = {
-            stopNumber:  document.getElementById(`stopNumber${i}`).innerText,
+            stopNumber:  document.getElementById(`stopNumber${i}`).value,
             routeId: `${this.state.selectedRoute}`, ////where to get scheduleId from??
             customerId: document.getElementById(`customerSelect${i+1}`).value// in state needs to be set from dropdown value?
-        } 
+        }
+         
         console.log('handlesubmitstop', JSON.stringify(postStopData));
         fetch("https://allin1ship.herokuapp.com/postScheduleStops", {
             method: "POST",  
@@ -107,7 +109,7 @@ class EditDefaultRoute extends React.Component {
             else {throw new Error(response.statusText) }
         }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
     }
-
+*/
 /*
     handleTextChange = (e) => {
         this.setState({selectedDropOffInfo: e.target.value})
@@ -147,11 +149,11 @@ class EditDefaultRoute extends React.Component {
         let arrayToRender = []
         for (let i=0;i<routeData.length;i++) {
             let tableRow = (<tr key={routeData[i].stop_number} id={`${routeData[i].stop_number}`} 
-                draggable={true} 
+                /*draggable={true} 
                 
                 onDragStart={this.handleDrag} 
-                onDrop={this.handleDrop}>
-                <td id={`stopNumber${routeData[i].stop_number}`}>{routeData[i].stop_number}</td>
+                onDrop={this.handleDrop}*/>
+                <td id={`stopNumber${routeData[i].stop_number}`} value={routeData[i].stop_number} >{routeData[i].stop_number}</td>
                 <td id={routeData[i].stop_number}><select id={`customerSelect${routeData[i].stop_number}`}><option key='0' value={routeData[i].customer_id} >{routeData[i].customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
                 {/*<td><textarea onChange={tasktext => this.setState({[`tasks${routeData[i].stop_number}`]: tasktext.target.value })}
                     rows='3' cols='35' id={`tasks${routeData[i].stop_number}`} defaultValue={this.state[`tasks${routeData[i].stop_number}`] && this.state[`tasks${routeData[i].stop_number}`]} name={`taskTextArea${routeData[i].stop_number}`}

@@ -63,7 +63,7 @@ class DisplayCurrentRoute extends React.Component {
     }*/
 
     renderTask = (index, json) => {
-        console.log(json);
+        //console.log(json);
         json.length>0 && this.state.taskTable.push(<tr>
             <td  >{index+1}</td>
             {json.map(task => <><td className={`currentRouteTd ${task.completion_status==='complete' ? 'taskComplete' : 'taskIncomplete'}`} >{task.task}</td><td className='currentRouteTd' >{task.completion_status ? task.completion_status : 'incomplete'}</td></>)}    
@@ -77,6 +77,8 @@ class DisplayCurrentRoute extends React.Component {
 
     render() {
         const { routeData } = this.state;
+
+        routeData && routeData.sort((a, b) => a.stop_number - b.stop_number);
 
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
             <option key={driver.driver}>{driver.driver}</option>
