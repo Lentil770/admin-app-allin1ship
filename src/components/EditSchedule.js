@@ -82,6 +82,7 @@ class EditSchedule extends React.Component {
                 <td ><textarea onChange={tasktext => this.setState({[`tasks${newRouteData[i].stop_number}`]: tasktext.target.value })}
                     rows='3' cols='35' id={`tasks${newRouteData[i].stop_number}`} defaultValue={this.state[`tasks${newRouteData[i].stop_number}`]} name={`taskTextArea${newRouteData[i].stop_number}`}
                 ></textarea></td> 
+                <input type='button' onClick={(e) => this.deleteRouteRow(e, newRouteData[i].stop_number)} value='delete row' />
                 {/*<button type='button' onClick={() => this.deleteRouteRow(newRouteData[i].stop_number)}>delete row</button>*/}
             </tr>)
             this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
@@ -96,9 +97,10 @@ class EditSchedule extends React.Component {
                         Select Customer
                     </option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
             <td ><textarea onChange={tasktext => this.setState({[`tasks${routeTableData.length + 1}`]: tasktext.target.value })}
-                rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  value={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
+                rows='3' cols='35' id={`tasks${routeTableData.length + 1}`}  defaultValue={this.state[`tasks${routeTableData.length + 1}`]} name={`taskTextArea${routeTableData.length + 1}`}
             >
             </textarea></td> 
+            <input type='button' onClick={(e) => this.deleteRouteRow(e, routeTableData.length + 1)} value='delete row' />
             {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
         </tr>)
         this.setState({routeTableData: [...this.state.routeTableData, tableRow]})
@@ -111,9 +113,14 @@ class EditSchedule extends React.Component {
         const filteredRouteData = routeData.filter((route) => route.stop_number !== rowNumber)
         for (let i=0;i<filteredRouteData.length;i++){
             filteredRouteData[i].stop_number = i+1
+            if (i+1 >= rowNumber ) {
+                let taskString = this.state[`tasks${i+1}`];
+                taskString = this.state[`tasks${i+2}`] ? this.state[`tasks${i+2}`] : '';
+                this.setState({[`tasks${i+1}`]: taskString});
+            }
         }
         console.log(filteredRouteData);
-        this.setState({routeData: filteredRouteData, routeTableData: []}, this.setRouteTableData)
+        this.setState({routeData: filteredRouteData, routeTableData: [], [`tasks${filteredRouteData.length+1}`]: ''}, this.setRouteTableData)
     }
 
     formatTasks = (json, stopi) => {
@@ -234,11 +241,6 @@ class EditSchedule extends React.Component {
                 return response.json()
             }
             else {throw new Error(response.statusText) }
-/*
-            console.log('sched_stop successfully posted');
-            this.postStopTask(stopData.tasks)
-            return response.json();*/
-    
         }).then(json => this.postStopTask(this.state[`tasks${givenI+1}`], this.state.routeData[givenI].schedule_stop_id))
         .catch(err => console.log(err))
     }
@@ -304,10 +306,6 @@ class EditSchedule extends React.Component {
     }
 
     render() {
-        /*left in if wabnt to copy
-        const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
-            <option key={driver.driver}>{driver.driver}</option>
-        );*/
 
         const driverOptions = this.state.driverList && this.state.driverList.map((driver, index) => 
             <option key={index} value={driver.driver}>{driver.driver}</option>
@@ -321,16 +319,6 @@ class EditSchedule extends React.Component {
             <option key={route.id} value={route.id}>{route.id} - {route.route_name}</option>
         );
 
-       
-        /*const tableRouteData = this.state.routeData && this.state.routeData.map((stop) => 
-        <tr >
-            <td id={`stopNumber${stop.stop_number}`}>{stop.stop_number}</td>
-            <td id={`customer${stop.stop_number}`}><select id={`customerSelect${stop.stop_number}`}><option key='0' value={stop.customer_id} >{stop.customer_name}</option>{this.state.customersData && this.state.customersList(this.state.customersData)}</select></td>
-            <td contentEditable="true" id={`notes${stop.stop_number}`} >{stop.notes}</td> 
-            <input type='text' id={stop.stop_number} defaultValue={stop.comments} onChange={() => this.handleComment}></input>
-            <button type='button' onClick={() => this.handleCommentButton(stop.stop_number, document.getElementById(`notes${stop.notes}`).innerText)}>submit changes</button>
-        </tr>  
-    )*/
         const todaysDate = new Date().toISOString().split('T')[0];
 
         return <div style={{padding: '15px'}}>            
@@ -396,19 +384,6 @@ class EditSchedule extends React.Component {
                         </tbody>
                        <button type='button' onClick={() => this.addRouteRow()}>add row</button>
                     </table>
-                   {/* LEFT IN TO COPY FOR NEW FORM IF WANTED
-                    DRIVER:<br/>
-                    <select required onChange={this.handleDriverChange}>
-                    <option value="none" selected disabled hidden> 
-                        Select a Driver 
-                    </option>
-                        {optionsDrivers}
-                    </select><br/><br/>
-                    DROP OFF INFO:<br/>
-                    <textarea 
-                    onChange={this.handleTextChange}
-                    name='comment'>Thank you for working hard today, your work means a lot and we appreciate the extra you put in</textarea><br/><br/>
-                   */}
                     <button type='submit'>SUBMIT</button><br/></>}
                 </form>
             
