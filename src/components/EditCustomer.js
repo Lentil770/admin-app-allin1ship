@@ -90,9 +90,9 @@ class EditCustomer extends React.Component {
                     <br/><legend>Edit customer</legend><br/>
 
                     <select name='customer' id='select1' onChange={this.handleCustomerSelection}>
+                        <option selected hidden>choose a customer</option>
                         {this.state.customersData && this.state.customersList(this.state.customersData)}</select>
-                    according to selected customer - display their data in editable boxes, and uodate state acc to changes, and on submit run a post with data to alter table.
-                    
+
                     <Table bordered hover>
                         <thead>
                             <tr>
