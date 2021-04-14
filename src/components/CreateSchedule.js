@@ -284,18 +284,15 @@ class CreateSchedule extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        
-        if (!checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate)) {
-            alert(`there is already a schedule for ${this.state.selectedDriver} on ${this.state.selectedDate}`)
-            return
-        }
-        console.log('check if shcheculde already ecists returned true/ x return');
 
-        this.postSchedule();
-        /*for each row in state.routeStopsData
-        for (let i=0;i<this.state.routeTableData.length;i++) {
-        this.postScheduleStops(i)
-        }*/
+        checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate).then(res => {
+            if (res) {
+                alert(`there is already a schedule for ${this.state.selectedDriver} on ${this.state.selectedDate}`)
+                return
+            } else {
+                this.postSchedule()
+            }
+        })
     }
 
     handleDrag = (e) => {
