@@ -77,14 +77,25 @@ class EditDefaultRoute extends React.Component {
     })
     }
 
+    deleteRouteStops = () => {
+        fetch(`https://allin1ship.herokuapp.com/deleteRouteStops/${this.state.selectedRoute}`).then(response =>  {
+            console.log(response);
+            if (response.ok) {
+                console.log('rotue successfully deleted')
+                for (let i=1;i<=this.state.routeData.length;i++) {
+                    this.postStopChanges(i)
+                }
+            }
+            return response.json();
+        })
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
         console.log('handlesubmitrunning');
         //CHANGE THIS, PROB CHANGE ENDPOINT TO DLETE PREV, AND POST ALL NEW
         //i think i have to work backwards from the server- figure out how to delete the old stops and post all new ones and then figute out how i need to send the new data.
-        for (let i=1;i<=this.state.routeData.length;i++) {
-            this.postStopChanges(i)
-        }
+        this.deleteRouteStops()        
     }
 /*
     postScheduleStops = (i) => {
