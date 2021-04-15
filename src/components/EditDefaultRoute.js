@@ -71,7 +71,10 @@ class EditDefaultRoute extends React.Component {
         }).then(response =>  {
             console.log(response);
             if (response.ok) {
-                alert('changes successfully sent')
+                console.log('stop successfully submitted');
+                if (i === this.state.routeData.length) {
+                    alert('stops successfully submitted')
+                }
             }
             return response.json();
     })
@@ -81,8 +84,9 @@ class EditDefaultRoute extends React.Component {
         fetch(`https://allin1ship.herokuapp.com/deleteRouteStops/${this.state.selectedRoute}`).then(response =>  {
             console.log(response);
             if (response.ok) {
-                console.log('rotue successfully deleted')
+                console.log('route successfully deleted')
                 for (let i=1;i<=this.state.routeData.length;i++) {
+                    console.log('about to post stop changes', i, 'routedata.length=', this.state.routeData.length);
                     this.postStopChanges(i)
                 }
             }
