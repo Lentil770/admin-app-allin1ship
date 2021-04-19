@@ -384,7 +384,7 @@ class EditSchedule extends React.Component {
                         </tbody>
                        <button type='button' onClick={() => this.addRouteRow()}>add row</button>
                     </table>
-                    <button type='submit'>SUBMIT</button><br/></>}
+                    <button type='submit' style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/></>}
                 </form>
             
             </main>

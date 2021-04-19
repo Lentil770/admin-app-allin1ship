@@ -64,7 +64,7 @@ class AddCustomer extends React.Component {
                     <label htmlFor='comments'>Comments  </label>
                     <textarea id='comments' value={this.state.comments} onChange={this.handleChange} /><br/><br/>
 
-                    <button type='submit'>SUBMIT</button><br/>
+                    <button type='submit' style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/>
                 </form>
             
             </main>

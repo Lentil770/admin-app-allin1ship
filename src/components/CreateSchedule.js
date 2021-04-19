@@ -284,15 +284,28 @@ class CreateSchedule extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
+        if (!window.confirm('are you sure you are ready to continue?')) return;
 
         checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate).then(res => {
             if (res) {
                 alert(`there is already a schedule for ${this.state.selectedDriver} on ${this.state.selectedDate}`)
                 return
-            } else {
-                this.postSchedule()
-            }
+            } 
         })
+
+        this.confirmFieldsChosen() ? /*this.postSchedule()*/alert('confirm fields true') : alert('you have not filled out all mandatory fields. Please fill them out and try again.')
+    }
+
+    confirmFieldsChosen = () => {
+        //here check state or whatever that slected fields are chosen etc and return true if yeah, false if not
+        if (!this.state.selectedDriver) {
+            return false
+        } else if (!this.state.selectedVehicle) {
+            return false
+        } else if (!this.state.selectedRoute) {
+            return false
+        }
+        return true;
     }
 
     handleDrag = (e) => {
@@ -554,10 +567,10 @@ class CreateSchedule extends React.Component {
                             {this.state.routeTableData}
                         </tbody>
                        <button type='button' onClick={() => this.addRouteRow()}>add row</button>
-                    </table>
+                    </table><br/>
 
 
-                    <button type='submit'>SUBMIT</button><br/>
+                    <button type='submit' style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/>
                 </form>
                 
                 {/*<Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>*/}

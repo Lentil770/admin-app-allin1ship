@@ -111,7 +111,7 @@ class EditCustomer extends React.Component {
                         </tbody>
                     </Table>
                     
-                    <button type='submit'>SUBMIT</button><br/>
+                    <button type='submit' style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/>
                 </form>
             
             </main>
