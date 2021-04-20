@@ -116,6 +116,7 @@ class DisplayCurrentRoute extends React.Component {
                         <p>Vehicle: {routeData[0].vehicle}</p>
                         <p>Route: {routeData[0].route_name}</p>
                         <p>Dropoff Info: {routeData[0].dropoff_info}</p>
+                        <p>Start Time: {routeData[0].start_time ? routeData[0].start_time.substring(11, 19) : 'Route Not Started'}</p>
                     </div>
                     }
                     <br/>

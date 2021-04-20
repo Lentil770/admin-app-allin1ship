@@ -284,7 +284,7 @@ class CreateSchedule extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        if (!window.confirm('are you sure you are ready to continue?')) return;
+        if (!window.confirm('Please confirm if you are ready to submit schedule?')) return;
 
         checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate).then(res => {
             if (res) {
@@ -293,7 +293,7 @@ class CreateSchedule extends React.Component {
             } 
         })
 
-        this.confirmFieldsChosen() ? /*this.postSchedule()*/alert('confirm fields true') : alert('you have not filled out all mandatory fields. Please fill them out and try again.')
+        this.confirmFieldsChosen() ? this.postSchedule() : alert('you have not filled out all mandatory fields. Please fill them out and try again.')
     }
 
     confirmFieldsChosen = () => {
@@ -351,13 +351,8 @@ class CreateSchedule extends React.Component {
         console.log('handleDrop', dragId, e.currentTarget.id);
         const dragRow = routeData.find((route) => route.id === dragId)
         const dropRow = routeData.find((route) => route.id === e.currentTarget.id)
-<<<<<<< HEAD
         const dragRowOrder = dragRow.id;
         const dropRowOrder = dropRow.id;
-=======
-        const dragRowOrder = dragRow.id;
-        const dropRowOrder = dropRow.id;
->>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         const newRowState = routeData.map((route) => {
             if (route.id === dragId) {
                 route.id = dropRowOrder;
@@ -367,9 +362,6 @@ class CreateSchedule extends React.Component {
             }
             return route
         })
-<<<<<<< HEAD
-=======
->>>>>>> c6d9a89524a9be8af0a6d1cf474c5f664360d597
         this.setState({routeData: newRowState})
     }
 */
@@ -521,7 +513,8 @@ class CreateSchedule extends React.Component {
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
                     <option value="Driver">Driver</option>       
-                    <option value="Jeffrey">Jeffrey</option>                                     
+                    <option value="Jeffrey">Jeffrey</option>       
+                    <option value="Jeffrey">Mendy</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
@@ -566,7 +559,7 @@ class CreateSchedule extends React.Component {
                         <tbody>
                             {this.state.routeTableData}
                         </tbody>
-                       <button type='button' onClick={() => this.addRouteRow()}>add row</button>
+                       {this.state.selectedRoute && <button type='button' onClick={() => this.addRouteRow()}>add row</button>}
                     </table><br/>
 
 

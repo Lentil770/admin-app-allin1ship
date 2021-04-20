@@ -209,9 +209,9 @@ class EditSchedule extends React.Component {
         console.log('poststoptask running tasks: ', tasks, schedule_stop_id);
         const taskArray = tasks.replace(/\r\n/g,"\n").split("\n").filter(line => line);
         console.log(taskArray, schedule_stop_id);
-        this.deleteStopTasks(schedule_stop_id);
+        //this.deleteStopTasks(schedule_stop_id);
         for (let i=0;i<taskArray.length;i++) {
-            fetch(`https://allin1ship.herokuapp.com/alterStopTask/${schedule_stop_id}`, {
+            fetch(`https://allin1ship.herokuapp.com/postStopTask/${schedule_stop_id}`, {
                 method: "POST",  
                 headers: {
                     "Content-Type": "application/json"},
@@ -231,18 +231,45 @@ class EditSchedule extends React.Component {
             customerId: document.getElementById(`customerSelect${givenI+1}`).value// in state needs to be set from dropdown value?
         } 
         console.log('handlesubmitstop', JSON.stringify(alterStopData));
-        fetch("https://allin1ship.herokuapp.com/alterScheduleStops", {
+        fetch("https://allin1ship.herokuapp.com/postScheduleStop", {
             method: "POST",  
             headers: {
                 "Content-Type": "application/json"},
             body: JSON.stringify(alterStopData)
         }).then((response) => {
             if(response.ok) {
-                return response.json()
+                this.postStopTask(this.state[`tasks${givenI+1}`], this.state.routeData[givenI].schedule_stop_id)
+                //return response.json()
             }
             else {throw new Error(response.statusText) }
-        }).then(json => this.postStopTask(this.state[`tasks${givenI+1}`], this.state.routeData[givenI].schedule_stop_id))
+        })//.then(json => this.postStopTask(this.state[`tasks${givenI+1}`], this.state.routeData[givenI].schedule_stop_id))
         .catch(err => console.log(err))
+    }
+
+    deleteScheduleStopTasks = (givenI) => {
+        const stopId = this.state.routeData[givenI].schedule_stop_id;
+
+        fetch(`https://allin1ship.herokuapp.com/deleteStopsTasks/${stopId}`).then((response) => {
+            //for each row in state.routeStopsData
+            if (response.ok) {
+                console.log('sucessfully dropped tasks', stopId);
+                this.deleteScheduleStops(givenI)
+            }
+        })
+    }
+
+    deleteScheduleStops = (givenI) => {
+        
+        fetch(`https://allin1ship.herokuapp.com/dropScheduleStops/${this.state.scheduleData[0].id}`).then((response) => {
+            //for each row in state.routeStopsData
+            if (response.ok) {
+                console.log('drop stops successful');
+                //for (let i=0;i<this.state.routeTableData.length;i++) {
+                    //this.deleteScheduleStopTasks(i)
+                    this.postScheduleStops(givenI)
+                //}
+            }
+        })
     }
     
     handleSubmit = (e) => {
@@ -263,9 +290,8 @@ class EditSchedule extends React.Component {
         }).then((response) => {
         //for each row in state.routeStopsData
         if (response.ok) {
-            
             for (let i=0;i<this.state.routeTableData.length;i++) {
-                this.postScheduleStops(i)
+                this.deleteScheduleStopTasks(i)
             }
             alert('schedule successfully posted')
     }
