@@ -18,7 +18,7 @@ class TopBar extends React.Component {
                     {/*<Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>    needs to be edited */}
                     <Link to='/add-customer'><button>ADD CUSTOMER</button></Link>
                     <Link to='/edit-customer'><button>EDIT CUSTOMER</button></Link> 
-                    <Link to='/edit-schedule'><button>EDIT SCHEDULE</button></Link>
+                    {/*<Link to='/edit-schedule'><button>EDIT SCHEDULE</button></Link>*/}
                     <Link to='/edit-route'><button>EDIT DEFAULT ROUTE</button></Link>
                     {/*<Link to='/display-feedback'><button>VIEW FEEDBACK</button></Link> replaced with view currwnt route data
                     <Link to='/display-timestamps'><button>VIEW TIMESTAMPS</button></Link>* replaced with view curent route data */}
