@@ -65,6 +65,7 @@ class EditSchedule extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     console.log("handle submit goes here");
+    axios.post(url, data)
     //switch to axios
   };
 
@@ -123,12 +124,12 @@ class EditSchedule extends React.Component {
   handleRouteChange = (e) => {
     console.log("handleRouteChange runnig", e.target.value);
     const { scheduleData } = this.state
-    const url = `https://allin1ship.herokuapp.com/defaultRouteDisplay/${parseInt(e.target.value)}` 
+    const url = `https://allin1ship.herokuapp.com/defaultRouteDisplay/${parseInt(e.target.value)}`
     axios.get(url).then(res => {
       console.log('res');
       scheduleData.stopsData = res.data;
       scheduleData.route_id = parseInt(e.target.value);
-      this.setState({scheduleData})
+      this.setState({ scheduleData })
     })
   };
 
@@ -157,12 +158,12 @@ class EditSchedule extends React.Component {
   handleTaskChange = (stopIndex, value) => {
     //may need to server make new tasks if not already? or deleting all tasks and creating all new?
     console.log('handleTAskChanfe');
-    console.log(stopIndex,value);
+    console.log(stopIndex, value);
     const { scheduleData, customerList } = this.state;
     let taskArray = value.split('\n')
-    taskArray = taskArray.filter(function (e) {return e != ""});
+    taskArray = taskArray.filter(function (e) { return e != "" });
     console.log(taskArray);
-    for (let i=0;i<taskArray.length;i++) {
+    for (let i = 0; i < taskArray.length; i++) {
       if (scheduleData.stopsData[stopIndex].tasks[i]) {
         scheduleData.stopsData[stopIndex].tasks[i].task = taskArray[i]
       } else {
@@ -188,7 +189,7 @@ class EditSchedule extends React.Component {
     for (let i = 0; i < stopsData.length; i++) {
       //console.log("loop", i);
       let tableRow = (
-        <tr key={'row'+i}>
+        <tr key={'row' + i}>
           <td id={`stopNumber${stopsData[i].stop_number}`}>
             {stopsData[i].stop_number}
           </td>
@@ -233,7 +234,7 @@ class EditSchedule extends React.Component {
   };
 
 
-  renderOptions = (type, typeB=type, typeC=null) => {
+  renderOptions = (type, typeB = type, typeC = null) => {
     //console.log(type, typeB, typeC);
     const returnValue = this.state[`${type}List`] ? (
       this.state[`${type}List`].map((singleValue, index) => (
