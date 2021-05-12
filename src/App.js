@@ -6,7 +6,7 @@ import AddCustomer from "./components/AddCustomer";
 import AddDriver from "./components/AddDriver";
 import AddVehicle from "./components/AddVehicle";
 import EditCustomer from "./components/EditCustomer";
-import EditSchedule from "./components/EditSchedule";
+import EditScheduleB from "./components/EditScheduleB";
 import EditDefaultRoute from "./components/EditDefaultRoute";
 import { Route } from 'react-router-dom';
 import DisplayFeedback from './components/DisplayFeedback';
@@ -47,7 +47,7 @@ function App() {
       />
       <Route
         path='/edit-schedule'
-        component={EditSchedule}
+        component={EditScheduleB}
       />
       <Route
         path='/edit-route'
