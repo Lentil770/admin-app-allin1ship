@@ -514,7 +514,8 @@ class CreateSchedule extends React.Component {
                     <option value="Alex">Alex</option>
                     <option value="Driver">Driver</option>       
                     <option value="Jeffrey">Jeffrey</option>       
-                    <option value="Mendy">Mendy</option>                                     
+                    <option value="Mendy">Mendy</option>     
+                    <option value="Brian">Brian</option>                                     
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
