@@ -12,7 +12,9 @@
 import React from "react";
 import axios from "axios";
 
-
+function delay() {
+  setTimeout(() => { console.log('delayt') }, 500)
+}
 class EditSchedule extends React.Component {
   state = {
     dataFetched: false,
@@ -62,10 +64,132 @@ class EditSchedule extends React.Component {
     this.getCustomersData();
   }
 
+  deleteStopTasks = () => {
+    console.log('deletestoptasks running');
+    const { scheduleData } = this.state
+    //sthis.setState({deletedTasks: this.state.deletedTasks++})
+    const url = `https://allin1ship.herokuapp.com/deleteStopsTasks`
+    let scheduleStopIds = []
+    for (let i = 0; i < scheduleData.stopsData.length; i++) {
+      scheduleData.stopsData[i].schedule_stop_id && scheduleStopIds.push(scheduleData.stopsData[i].schedule_stop_id)
+    }
+    console.log(scheduleStopIds);
+    const requestBody = {
+      scheduleStopIds: scheduleStopIds
+    }
+    return axios.post(url, requestBody)
+  }
+
+  deleteStops = () => {
+    console.log('delete stops runing');
+    const url = `https://allin1ship.herokuapp.com/dropScheduleStops/${this.state.scheduleData.id}`
+    return axios.get(url)
+    //.then(res=> this.setState({stopsDeleted: true}))
+  }
+
+  editSchedule = () => {
+    console.log('edit scheudle runnging - get data from state');
+    const { scheduleData } = this.state;
+    const url = `https://allin1ship.herokuapp.com/alterSchedule/${scheduleData.id}`
+    const requestBody = {
+      selectedDate: scheduleData.schedule_date.substring(0, 10),
+      selectedDriver: scheduleData.driver,
+      selectedVehicle: scheduleData.vehicle,
+      selectedDropOffInfo: scheduleData.dropoff_info,
+      selectedDefaultRoute: scheduleData.route_id ? scheduleData.route_id : 999 /**999 references an empty route in db */
+    }
+    console.log(requestBody);
+    return axios.post(url, requestBody)
+  }
+
+  postNewStop = (i) => {
+    console.log('postnewstop runnigi', i);
+    const { scheduleData } = this.state;
+
+    const url = `https://allin1ship.herokuapp.com/postScheduleStops`
+    const requestBody = {
+      scheduleId: scheduleData.id,
+      customerId: scheduleData.stopsData[i].customer_id,
+      stopNumber: scheduleData.stopsData[i].stop_number
+    }
+    console.log(requestBody);
+    return axios.post(url, requestBody) /**needs to return schedulestopid */
+  }
+
+  postNewTask = (schedule_stop_id, taskText) => {
+    console.log('postnewtask, need to get stop_id from api response', console.log(schedule_stop_id));
+    const url = `https://allin1ship.herokuapp.com/postStopTask/${schedule_stop_id}`
+    const requestBody = {
+      task: taskText
+    }
+    axios.post(url, requestBody)
+  }
+
   handleSubmit = (e) => {
+    //need to do a bunch of steps, WITHOUT CALLBACK HELL 
+    //currently best solutin i have is ridiculous inner loops etc.
+    //probably better would be one api call that does everything...
     e.preventDefault();
-    console.log("handle submit goes here");
-    axios.post(url, data)
+    console.log("handle submit running");
+    let newStopCounter = 0;
+    const { scheduleData } = this.state;
+    this.setState({ deletedTasks: 0, stopsDeleted: false })
+    this.deleteStopTasks().then((res1) => {
+
+      console.log("then after deletestoptasks", res1);
+      this.deleteStops().then((res2) => {
+        console.log("then after deletestops", res2);
+        this.editSchedule().then((resedit) => {
+          console.log('aftereditschedule,', resedit);
+          for (let i = 0; i < scheduleData.stopsData.length; i++) {
+            this.postNewStop(i).then((res3) => {
+              console.log("then after postnewstop", res3);
+              console.log("res3data schedstopids", res3.data);
+              for (let ii = 0; ii < scheduleData.stopsData[i].tasks.length; ii++) {
+                //need to call it with returned stopId. c\tes if this works...
+                this.postNewTask(res3.data, scheduleData.stopsData[i].tasks[ii].task).the((resNewTask) => {
+                  newStopCounter++
+                  if (newStopCounter >= scheduleData.stopsData.length) alert('success!')
+                })
+                
+              }
+            }).then(() => {
+              console.log("then nmot after postnewstops");
+            })
+          }
+        })
+      })
+
+    }).catch((err) => {
+      console.log('eror', err);
+    })
+    /*
+    //.then()
+      this.deleteStops()
+       //.then
+        this.editSchedule()
+        //.then()
+          for stop in stopsData:
+            this.postNewStop()
+              //.then(res=> 
+              for task in stop {
+                this.postNewStop(res.schedule_stop_id)
+              }
+            stopCounter++
+            if stopCounter > stops.length, alert('success!') */
+    console.log('finishedloop, this runs before any requests finished.');
+    /**
+     * /alterSchedule/${this.state.scheduleData[0].id}
+     * s://allin1ship.herokuapp.com/deleteStopsTasks/${stopId}
+     * /dropScheduleStops/${this.state.scheduleData[0].id
+     * lin1ship.herokuapp.com/postScheduleStop
+     * ps://allin1ship.herokuapp.com/postStopTask/${schedule_stop_id}
+     */
+    //then send deletestops with schedule id
+    //then send EditSchedule with scheduleData info,
+    //then for each Stop in scheduleData, send create new stop (schedule_id, customer_id, stop_number)
+    //then for each task in each stop post new task (sched_id)
+    //then alert status - error or complete:)
     //switch to axios
   };
 
@@ -86,29 +210,36 @@ class EditSchedule extends React.Component {
       })
       .then(() => {
         const stopsUrl = `https://allin1ship.herokuapp.com/singleRouteDisplay/${scheduleData.id}`;
+        console.log('stopsURl');
         return axios.get(stopsUrl);
       })
       .then((resStops) => {
-        //console.log(resStops);
+        console.log(resStops);
         scheduleData.stopsData = resStops.data;
         //console.log("scheduledata with resStops: ", scheduleData);
       })
       .then(() => {
         const { stopsData } = scheduleData;
         //let tasksArray = [];
-        for (let i = 0; i < stopsData.length; i++) {
-          let tasksUrl = `https://allin1ship.herokuapp.com/getRouteTasks/${stopsData[i].schedule_stop_id}`;
-          axios.get(tasksUrl).then((taskRes) => {
-            //console.log("taskRes", taskRes);
-            scheduleData.stopsData[i].tasks = taskRes.data;
-            //tasksArray.push(taskRes.data);
-            //console.log("tasksarray in loop:", tasksArray);
-            if (i + 1 === stopsData.length) {
-              console.log("fetching tasks finished");
-              this.setState({ scheduleData, dataFetched: true });
-            }
-          });
+        if (stopsData.length === 0) {
+          this.setState({ scheduleData, dataFetched: true });
+        } else {
+          for (let i = 0; i < stopsData.length; i++) {
+            let tasksUrl = `https://allin1ship.herokuapp.com/getRouteTasks/${stopsData[i].schedule_stop_id}`;
+            axios.get(tasksUrl).then((taskRes) => {
+              console.log("taskRes", taskRes);
+              scheduleData.stopsData[i].tasks = taskRes.data ? taskRes.data : [];
+              //tasksArray.push(taskRes.data);
+              //console.log("tasksarray in loop:", tasksArray);
+              if (taskRes.status === 200) {
+                console.log("fetching tasks finished");
+
+              }
+            });
+            this.setState({ scheduleData, dataFetched: true });
+          }
         }
+
       })
       .catch((err) => console.log("getScheduleData error: ", err));
   };
@@ -117,17 +248,22 @@ class EditSchedule extends React.Component {
     //this should set selected schedule state?
     //fetch scheudle data and set state.
     console.log("handlechoosescheduletoedit", e.target.value);
-    this.setState({ selectedSchedule: e.target.value });
+    this.setState({ selectedSchedule: e.target.value});
     this.getScheduleData(e.target.value);
   };
 
   handleRouteChange = (e) => {
     console.log("handleRouteChange runnig", e.target.value);
-    const { scheduleData } = this.state
+    const { scheduleData } = this.state;
+    scheduleData.stopsData = {}
+    this.setState({scheduleData})
     const url = `https://allin1ship.herokuapp.com/defaultRouteDisplay/${parseInt(e.target.value)}`
     axios.get(url).then(res => {
       console.log('res');
       scheduleData.stopsData = res.data;
+      for (let i=0;i<res.data.length;i++) {
+        scheduleData.stopsData[i].tasks = []
+      }
       scheduleData.route_id = parseInt(e.target.value);
       this.setState({ scheduleData })
     })
@@ -182,6 +318,31 @@ class EditSchedule extends React.Component {
     this.setState({ scheduleData });
   };
 
+  addStopRow = () => {
+    const { scheduleData } = this.state;
+    scheduleData.stopsData.push({
+      address: '',
+      customer_id: '',
+      customer_name: '',
+      schedule_stop_id: null,
+      stop_number: scheduleData.stopsData.length + 1
+    })
+    this.setState({ scheduleData })
+  }
+
+  deleteStopRow = (e, stop_number) => {
+    console.log(stop_number);
+    const { scheduleData } = this.state;
+    const filteredStops = scheduleData.stopsData.filter((stop) => stop.stop_number !== stop_number)
+    for (let i = 0; i < filteredStops.length; i++) {
+      if (filteredStops[i].stop_number > stop_number) {
+        filteredStops[i].stop_number = filteredStops[i].stop_number - 1;
+      }
+    }
+    scheduleData.stopsData = filteredStops
+    this.setState({ scheduleData })
+  }
+
   renderTable = () => {
     console.log("renderTabel");
     const { stopsData } = this.state.scheduleData;
@@ -211,11 +372,11 @@ class EditSchedule extends React.Component {
               name={`taskTextArea${stopsData[i].stop_number}`}
             ></textarea>
           </td>
-          {/*<input
+          <input
             type="button"
-            onClick={(e) => this.deleteRouteRow(e, stopsData[i].stop_number)}
+            onClick={(e) => this.deleteStopRow(e, stopsData[i].stop_number)}
             value="delete row"
-          />*/}
+          />
         </tr>
       );
       tableRows.push(tableRow);
@@ -384,6 +545,8 @@ class EditSchedule extends React.Component {
               </thead>
               <tbody>{this.renderTable()}</tbody>
             </table>
+            <button onClick={this.addStopRow}>add row</button>
+            <br />
             <button
               onClick={this.handleSubmit}
               style={{ color: "white", backgroundColor: "black", width: 300 }}
