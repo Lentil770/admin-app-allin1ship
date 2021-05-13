@@ -81,7 +81,7 @@ class DisplayCurrentRoute extends React.Component {
         routeData && routeData.sort((a, b) => a.stop_number - b.stop_number);
 
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
-            <option key={driver.driver}>{driver.driver}</option>
+            <option key={driver.username}>{driver.username}</option>
         );
 
 

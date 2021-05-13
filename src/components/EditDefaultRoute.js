@@ -181,10 +181,6 @@ class EditDefaultRoute extends React.Component {
     }
 
     render() {
-        /*left in if wabnt to copy
-        const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
-            <option key={driver.driver}>{driver.driver}</option>
-        );*/
         const tableRouteData = this.state.routeData && this.state.routeData.map((stop) => 
             <tr >
                 <td id={`stopNumber${stop.stop_number}`}>{stop.stop_number}</td>

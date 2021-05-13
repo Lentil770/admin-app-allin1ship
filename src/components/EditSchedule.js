@@ -337,7 +337,7 @@ class EditSchedule extends React.Component {
     render() {
 
         const driverOptions = this.state.driverList && this.state.driverList.map((driver, index) =>
-            <option key={index} value={driver.driver}>{driver.driver}</option>
+            <option key={index} value={driver.username}>{driver.username}</option>
         );
 
         const vehicleOptions = this.state.vehiclesList && this.state.vehiclesList.map((vehicle, index) =>

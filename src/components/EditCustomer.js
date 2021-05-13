@@ -77,12 +77,6 @@ class EditCustomer extends React.Component {
     }
 */
     render() {
-        /*left in if wabnt to copy
-        const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
-            <option key={driver.driver}>{driver.driver}</option>
-        );*/
-
-
         return <div style={{padding: '15px'}}>            
              <main className='EditCustomer'>
 

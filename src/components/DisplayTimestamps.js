@@ -30,7 +30,7 @@ class DisplayTimestamps extends React.Component {
 
     render() {
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
-            <option key={driver.driver}>{driver.driver}</option>
+            <option key={driver.username}>{driver.username}</option>
         );
 
         //need to order by time?
