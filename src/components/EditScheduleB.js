@@ -11,10 +11,11 @@
 
 import React from "react";
 import axios from "axios";
-
+/*
 function delay() {
   setTimeout(() => { console.log('delayt') }, 500)
-}
+}*/
+
 class EditSchedule extends React.Component {
   state = {
     dataFetched: false,
@@ -66,13 +67,13 @@ class EditSchedule extends React.Component {
 
   deleteStopTasks = () => {
     console.log('deletestoptasks running');
-    const { scheduleData } = this.state
+    const { scheduleData, schedule_stop_id_tracker } = this.state
     //sthis.setState({deletedTasks: this.state.deletedTasks++})
     const url = `https://allin1ship.herokuapp.com/deleteStopsTasks`
     let scheduleStopIds = []
-    for (let i = 0; i < scheduleData.stopsData.length; i++) {
-      scheduleData.stopsData[i].schedule_stop_id && scheduleStopIds.push(scheduleData.stopsData[i].schedule_stop_id)
-    }
+    for (let i = 0; i < schedule_stop_id_tracker.length; i++) {
+      scheduleStopIds.push(schedule_stop_id_tracker[i])
+    };
     console.log(scheduleStopIds);
     const requestBody = {
       scheduleStopIds: scheduleStopIds
@@ -83,7 +84,7 @@ class EditSchedule extends React.Component {
   deleteStops = () => {
     console.log('delete stops runing');
     const url = `https://allin1ship.herokuapp.com/dropScheduleStops/${this.state.scheduleData.id}`
-    return axios.get(url)
+    return axios.get(url)//.catch(err=> console.log(err))
     //.then(res=> this.setState({stopsDeleted: true}))
   }
 
@@ -122,7 +123,7 @@ class EditSchedule extends React.Component {
     const requestBody = {
       task: taskText
     }
-    axios.post(url, requestBody)
+    return axios.post(url, requestBody)
   }
 
   handleSubmit = (e) => {
@@ -147,18 +148,18 @@ class EditSchedule extends React.Component {
               console.log("res3data schedstopids", res3.data);
               for (let ii = 0; ii < scheduleData.stopsData[i].tasks.length; ii++) {
                 //need to call it with returned stopId. c\tes if this works...
-                this.postNewTask(res3.data, scheduleData.stopsData[i].tasks[ii].task).the((resNewTask) => {
+                this.postNewTask(res3.data, scheduleData.stopsData[i].tasks[ii].task).then((resNewTask) => {
                   newStopCounter++
                   if (newStopCounter >= scheduleData.stopsData.length) alert('success!')
                 })
-                
+
               }
             }).then(() => {
               console.log("then nmot after postnewstops");
             })
           }
         })
-      })
+      }).catch((err)=> console.log(err))
 
     }).catch((err) => {
       console.log('eror', err);
@@ -204,7 +205,7 @@ class EditSchedule extends React.Component {
       .then((resSchedule) => {
         //console.log(resSchedule);
         scheduleData = resSchedule.data[0];
-        if (!scheduleData) throw new Error
+        if (!scheduleData) throw new Error()
         console.log('gotSchedule', scheduleData);
         //this.setState({ scheduleData: res.data[0] });
       })
@@ -220,6 +221,7 @@ class EditSchedule extends React.Component {
       })
       .then(() => {
         const { stopsData } = scheduleData;
+        let schedule_stop_id_tracker = []
         //let tasksArray = [];
         if (stopsData.length === 0) {
           this.setState({ scheduleData, dataFetched: true });
@@ -229,14 +231,15 @@ class EditSchedule extends React.Component {
             axios.get(tasksUrl).then((taskRes) => {
               console.log("taskRes", taskRes);
               scheduleData.stopsData[i].tasks = taskRes.data ? taskRes.data : [];
+              taskRes.data[0] && schedule_stop_id_tracker.push(taskRes.data[0].schedule_stop_id)
               //tasksArray.push(taskRes.data);
               //console.log("tasksarray in loop:", tasksArray);
               if (taskRes.status === 200) {
                 console.log("fetching tasks finished");
-
               }
+              //setting state here after fetched last task
+              if (i === stopsData.length - 1) this.setState({ scheduleData, dataFetched: true, schedule_stop_id_tracker });
             });
-            this.setState({ scheduleData, dataFetched: true });
           }
         }
 
@@ -248,7 +251,7 @@ class EditSchedule extends React.Component {
     //this should set selected schedule state?
     //fetch scheudle data and set state.
     console.log("handlechoosescheduletoedit", e.target.value);
-    this.setState({ selectedSchedule: e.target.value});
+    this.setState({ selectedSchedule: e.target.value });
     this.getScheduleData(e.target.value);
   };
 
@@ -256,12 +259,12 @@ class EditSchedule extends React.Component {
     console.log("handleRouteChange runnig", e.target.value);
     const { scheduleData } = this.state;
     scheduleData.stopsData = {}
-    this.setState({scheduleData})
+    this.setState({ scheduleData })
     const url = `https://allin1ship.herokuapp.com/defaultRouteDisplay/${parseInt(e.target.value)}`
     axios.get(url).then(res => {
       console.log('res');
       scheduleData.stopsData = res.data;
-      for (let i=0;i<res.data.length;i++) {
+      for (let i = 0; i < res.data.length; i++) {
         scheduleData.stopsData[i].tasks = []
       }
       scheduleData.route_id = parseInt(e.target.value);
@@ -283,10 +286,12 @@ class EditSchedule extends React.Component {
   handleCustomerChange = (stopIndex, value) => {
     //this function sets the schedule stops customer_id to given value and finds that customers name from customerList to set customer_name
     //console.log( "herer needs to update data obj from state (key value)", key,value );
+    console.log('handleCustomerChange', stopIndex, value);
     const { scheduleData, customerList } = this.state;
     if (!scheduleData.stopsData) return
     scheduleData.stopsData[stopIndex].customer_id = value;
-    const customerObj = customerList.find(customer => customer.customer_id == value);
+    const customerObj = customerList.find(customer => customer.customer_id === value);
+    console.log(customerObj);
     scheduleData.stopsData[stopIndex].customer_name = customerObj.customer_name
     scheduleData.stopsData[stopIndex].address = customerObj.address
     this.setState({ scheduleData });
@@ -294,27 +299,40 @@ class EditSchedule extends React.Component {
   handleTaskChange = (stopIndex, value) => {
     //may need to server make new tasks if not already? or deleting all tasks and creating all new?
     console.log('handleTAskChanfe');
+    let scheduleData = this.state.scheduleData;
     console.log(stopIndex, value);
-    const { scheduleData, customerList } = this.state;
-    let taskArray = value.split('\n')
-    taskArray = taskArray.filter(function (e) { return e != "" });
-    console.log(taskArray);
-    for (let i = 0; i < taskArray.length; i++) {
-      if (scheduleData.stopsData[stopIndex].tasks[i]) {
-        scheduleData.stopsData[stopIndex].tasks[i].task = taskArray[i]
-      } else {
-        scheduleData.stopsData[stopIndex].tasks[i] = {
-          completion_status: null,
-          schedule_stop_id: scheduleData.stopsData[stopIndex].schedule_stop_id,
-          task: taskArray[i]
+    if (value === "") {
+      console.log('value empty')
+      scheduleData.stopsData[stopIndex].stops = []
+    } else {
+      let taskArray = value.split('\n')
+      taskArray = taskArray.filter(function (e) { return e != "" });
+      console.log(taskArray);
+      //ERROR HANDLE HERE
+      for (let i = 0; i < taskArray.length; i++) {
+        //this first if is because new stops were throwing error because didnt have tasks aray
+        if (!scheduleData.stopsData[stopIndex].tasks) {
+          scheduleData.stopsData[stopIndex].tasks = []
+        }
+        if (!scheduleData.stopsData[stopIndex].tasks[i]) {
+          scheduleData.stopsData[stopIndex].tasks[i] = {
+            completion_status: null,
+            schedule_stop_id: scheduleData.stopsData[stopIndex].schedule_stop_id,
+            task: taskArray[i]
+          }
+        } else {
+          scheduleData.stopsData[stopIndex].tasks[i].task = taskArray[i]
         }
       }
+      if (scheduleData.stopsData[stopIndex].tasks.length > taskArray.length) {
+        scheduleData = scheduleData.stopsData[stopIndex].tasks.slice(taskArray.length)
+      }
+      //scheduleDataB.stopsData[stopIndex].tasks.task = value;
+      if (!scheduleData.stopsData) console.log('issure');
+      if (!scheduleData.stopsData[stopIndex].tasks) return
     }
-    if (scheduleData.stopsData[stopIndex].tasks.length > taskArray.length) {
-      scheduleData = scheduleData.stopsData[stopIndex].tasks.slice(taskArray.length)
-    }
-    scheduleData.stopsData[stopIndex].tasks.task = value;
-    if (!scheduleData.stopsData[stopIndex].tasks) return
+    //const { scheduleData, customerList } = this.state;
+    
     this.setState({ scheduleData });
   };
 
@@ -325,7 +343,8 @@ class EditSchedule extends React.Component {
       customer_id: '',
       customer_name: '',
       schedule_stop_id: null,
-      stop_number: scheduleData.stopsData.length + 1
+      stop_number: scheduleData.stopsData.length + 1,
+      stops: []
     })
     this.setState({ scheduleData })
   }
@@ -355,7 +374,7 @@ class EditSchedule extends React.Component {
             {stopsData[i].stop_number}
           </td>
           <td id={stopsData[i].stop_number}>
-            <select id={`customerSelect${stopsData[i].stop_number}`} onChange={(e) => this.handleCustomerChange(i, e.target.value)}>
+            <select id={`customerSelect${stopsData[i].stop_number}`} onChange={(e) => this.handleCustomerChange(i, parseInt(e.target.value))}>
               <option key="0" value={stopsData[i].customer_id}>
                 {stopsData[i].customer_name}
               </option>
@@ -387,7 +406,9 @@ class EditSchedule extends React.Component {
 
   renderTasks = (tasks) => {
     //console.log(tasks);
+    console.log('resnder tasks');
     if (!tasks) return '';
+    console.log('tasks didnt return, is rendering');
     //putting new line between tasks (notbefore the first task)
     const returnValue = tasks.map((task, index) => index !== 0 ? '\n' + task.task : task.task);
     //console.log(returnValue);
@@ -466,19 +487,19 @@ class EditSchedule extends React.Component {
                 {selectedSchedule}
               </option>
               {this.renderOptions("driver")}
-              <option value={() => document.getElementById("new-driver").value}>
+              {/*<option value={() => document.getElementById("new-driver").value}>
                 New Driver
-              </option>
+              </option>*/}
             </select>
             <br />
-            <label htmlFor="new-driver">new driver</label>
+            {/*<label htmlFor="new-driver">new driver</label>
             <br />
             <input
               id="new-driver"
               onChange={(e) => this.handleChange("driver", e.target.value)}
             ></input>
             <br />
-            <br />
+            <br />*/}
             Change Vehicle:
             <br />
             <select
