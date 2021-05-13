@@ -483,9 +483,9 @@ class CreateSchedule extends React.Component {
     }
     render() {
 
-        /*const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
+        const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
             <option key={driver.driver}>{driver.driver}</option>
-        );*/
+        );
 
         const optionsRoutes = this.state.routes && this.state.routes.map((route) => 
             <option key={route.id} value={route.id}>{route.id} - {route.route_name}</option>
@@ -509,13 +509,15 @@ class CreateSchedule extends React.Component {
                     <option value="none" selected disabled hidden> 
                         Select a Driver 
                     </option>
+                    {optionsDrivers}
+                    {/*
                     <option value="Jonathan">Jonathan</option>
                     <option value="Will">Will</option>
                     <option value="Alex">Alex</option>
                     <option value="Driver">Driver</option>       
                     <option value="Jeffrey">Jeffrey</option>       
                     <option value="Mendy">Mendy</option>     
-                    <option value="Brian">Brian</option>                                     
+                    <option value="Brian">Brian</option>     */}                                
                     </select><br/>
                     <br/>
                     VEHICLE:{this.state.selectedVehicle}<br/>                    
