@@ -25,8 +25,8 @@ class TopBar extends React.Component {
             <Link to="/edit-customer">
               <button>EDIT CUSTOMER</button>
             </Link>
-            <Link to="/edit-schedule-b">
-              <button>EDIT SCHEDULE b</button>
+            <Link to="/edit-schedule">
+              <button>EDIT SCHEDULE</button>
             </Link>
             <Link to="/edit-route">
               <button>EDIT DEFAULT ROUTE</button>

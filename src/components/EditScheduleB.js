@@ -16,6 +16,12 @@ function delay() {
   setTimeout(() => { console.log('delayt') }, 500)
 }*/
 
+
+/**
+ * THIS IS REPLACEMENT TO BROKEN editschedule page
+ */
+
+//IDEA - MAYBE STORE TASKS AS JUST ARRAY IN EACH STOP, CAN GET STOP_ID FROM STOP ANYWAY, MAY MAKE ALL CHANGESTOP ISSUES MUCH SIMPLER
 class EditSchedule extends React.Component {
   state = {
     dataFetched: false,
@@ -57,6 +63,7 @@ class EditSchedule extends React.Component {
       .catch((err) => console.log(err));
   };
 
+  //fetchiing the constant data when page loads here.
   componentDidMount() {
     console.log("componentDidMount");
     this.fetchDrivers();
@@ -65,6 +72,8 @@ class EditSchedule extends React.Component {
     this.getCustomersData();
   }
 
+
+  //nexct five functions are all steps in SUBMIT process.
   deleteStopTasks = () => {
     console.log('deletestoptasks running');
     const { scheduleData, schedule_stop_id_tracker } = this.state
@@ -126,6 +135,8 @@ class EditSchedule extends React.Component {
     return axios.post(url, requestBody)
   }
 
+  //complex badly built submit function that calls : delete all tasks for all stops in schedule, then once that returns, delete all stops for schedule, then once eturns
+  //edit scheduledata, then post stops, then post tasks.
   handleSubmit = (e) => {
     //need to do a bunch of steps, WITHOUT CALLBACK HELL 
     //currently best solutin i have is ridiculous inner loops etc.
@@ -194,6 +205,8 @@ class EditSchedule extends React.Component {
     //switch to axios
   };
 
+
+  //long looping i think badly built but better than prev versions fetching scheduledata and then stopdata and then tasks for each stop and setting them all as one object in state
   getScheduleData = (driver) => {
     console.log('get schweduleData running');
     this.setState({ scheduleData: null, dataFetched: false });
@@ -247,6 +260,7 @@ class EditSchedule extends React.Component {
       .catch((err) => console.log("getScheduleData error: ", err));
   };
 
+  //on choosing driver to view their schedule, this calls getScheduleData to fetch todays scheudle for that driver
   handleChooseScheduleToEdit = (e) => {
     //this should set selected schedule state?
     //fetch scheudle data and set state.
@@ -255,6 +269,7 @@ class EditSchedule extends React.Component {
     this.getScheduleData(e.target.value);
   };
 
+  //if defalut route is changed (from dropdown) - this fetches the new rute fromj db by id and sets scheduledata stopdata to the new stops
   handleRouteChange = (e) => {
     console.log("handleRouteChange runnig", e.target.value);
     const { scheduleData } = this.state;
@@ -272,6 +287,7 @@ class EditSchedule extends React.Component {
     })
   };
 
+  //multipurpose change schedulechange individual key/values
   handleChange = (key, value) => {
     console.log(
       "herer needs to update data obj from state (key value)",
@@ -296,16 +312,22 @@ class EditSchedule extends React.Component {
     scheduleData.stopsData[stopIndex].address = customerObj.address
     this.setState({ scheduleData });
   };
+
+  //ridiculously complex function for changing a task, BC objects in stop in scheduledata, and handling if exists or not.
   handleTaskChange = (stopIndex, value) => {
+    //value is new task value, stopindex is which stop its task of.
     //may need to server make new tasks if not already? or deleting all tasks and creating all new?
     console.log('handleTAskChanfe');
     let scheduleData = this.state.scheduleData;
     console.log(stopIndex, value);
+    //handle erasing task
     if (value === "") {
       console.log('value empty')
       scheduleData.stopsData[stopIndex].stops = []
     } else {
+      //spliting value into lines bc each new line is new task
       let taskArray = value.split('\n')
+      //ensuring no empty lines included
       taskArray = taskArray.filter(function (e) { return e != "" });
       console.log(taskArray);
       //ERROR HANDLE HERE
@@ -314,6 +336,7 @@ class EditSchedule extends React.Component {
         if (!scheduleData.stopsData[stopIndex].tasks) {
           scheduleData.stopsData[stopIndex].tasks = []
         }
+        //if its a new task (ie no task obj already existed), creating task obj.
         if (!scheduleData.stopsData[stopIndex].tasks[i]) {
           scheduleData.stopsData[stopIndex].tasks[i] = {
             completion_status: null,
@@ -324,11 +347,12 @@ class EditSchedule extends React.Component {
           scheduleData.stopsData[stopIndex].tasks[i].task = taskArray[i]
         }
       }
+      //removing task objs if the tasks are now deleted i think?
       if (scheduleData.stopsData[stopIndex].tasks.length > taskArray.length) {
         scheduleData = scheduleData.stopsData[stopIndex].tasks.slice(taskArray.length)
       }
       //scheduleDataB.stopsData[stopIndex].tasks.task = value;
-      if (!scheduleData.stopsData) console.log('issure');
+      if (!scheduleData.stopsData) console.log('issue');
       if (!scheduleData.stopsData[stopIndex].tasks) return
     }
     //const { scheduleData, customerList } = this.state;
@@ -336,6 +360,7 @@ class EditSchedule extends React.Component {
     this.setState({ scheduleData });
   };
 
+  //simply adds stop to state scheudledata
   addStopRow = () => {
     const { scheduleData } = this.state;
     scheduleData.stopsData.push({
@@ -349,6 +374,7 @@ class EditSchedule extends React.Component {
     this.setState({ scheduleData })
   }
 
+  //just removes stop from scheduledata and updates state
   deleteStopRow = (e, stop_number) => {
     console.log(stop_number);
     const { scheduleData } = this.state;
@@ -362,6 +388,9 @@ class EditSchedule extends React.Component {
     this.setState({ scheduleData })
   }
 
+
+  //renders the table of each stop with its tasks.
+  //not complex, just long.
   renderTable = () => {
     console.log("renderTabel");
     const { stopsData } = this.state.scheduleData;
@@ -404,18 +433,20 @@ class EditSchedule extends React.Component {
   };
   //renders list of drivers as <options> for dropdown.
 
+
+//simple func to render tasks in textbox on each new line
   renderTasks = (tasks) => {
     //console.log(tasks);
-    console.log('resnder tasks');
+  //  console.log('resnder tasks');
     if (!tasks) return '';
-    console.log('tasks didnt return, is rendering');
+    //console.log('tasks didnt return, is rendering');
     //putting new line between tasks (notbefore the first task)
     const returnValue = tasks.map((task, index) => index !== 0 ? '\n' + task.task : task.task);
     //console.log(returnValue);
     return returnValue;
   };
 
-
+//renders list of option tags with given value from state array, option for multiple params to allow dif options.
   renderOptions = (type, typeB = type, typeC = null) => {
     //console.log(type, typeB, typeC);
     const returnValue = this.state[`${type}List`] ? (
@@ -430,6 +461,7 @@ class EditSchedule extends React.Component {
     return returnValue;
   };
 
+  //for each route in routelist , renders name (to be selected if want to change default route)
   routeOptions = () => {
     const returnValue = this.state.routeList ? (
       this.state.routeList.map((route, index) => (
@@ -443,6 +475,8 @@ class EditSchedule extends React.Component {
     return returnValue;
   };
 
+  //rendering before driver selected just driver sropdown and message,
+  //after editable option for each scheudla data point, updating state, and tanle of all stops with customers and tasks.
   render() {
     const { selectedSchedule, scheduleData, dataFetched } = this.state;
 
@@ -564,6 +598,7 @@ class EditSchedule extends React.Component {
                   <th className="editable">Tasks</th>
                 </tr>
               </thead>
+              {/**renders the table of all the stops and their tasks */}
               <tbody>{this.renderTable()}</tbody>
             </table>
             <button onClick={this.addStopRow}>add row</button>

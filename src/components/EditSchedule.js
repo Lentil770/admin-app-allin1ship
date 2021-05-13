@@ -1,6 +1,6 @@
 import React from 'react';
-
-class EditSchedule extends React.Component {
+//NOT WORKING OR USING - REPLACED WITH EDITSCHEDULEB
+/*class EditSchedule extends React.Component {
     state = {
         routeTableData: [],
         customersList: (givenData) => givenData && givenData.map((customer) =>
@@ -83,7 +83,7 @@ class EditSchedule extends React.Component {
                     rows='3' cols='35' id={`tasks${newRouteData[i].stop_number}`} defaultValue={this.state[`tasks${newRouteData[i].stop_number}`]} name={`taskTextArea${newRouteData[i].stop_number}`}
                 ></textarea></td>
                 <input type='button' onClick={(e) => this.deleteRouteRow(e, newRouteData[i].stop_number)} value='delete row' />
-                {/*<button type='button' onClick={() => this.deleteRouteRow(newRouteData[i].stop_number)}>delete row</button>*/}
+                {/*<button type='button' onClick={() => this.deleteRouteRow(newRouteData[i].stop_number)}>delete row</button>*//*}
             </tr>)
             this.setState({ routeTableData: [...this.state.routeTableData, tableRow] })
         }
@@ -101,7 +101,7 @@ class EditSchedule extends React.Component {
             >
             </textarea></td>
             <input type='button' onClick={(e) => this.deleteRouteRow(e, routeTableData.length + 1)} value='delete row' />
-            {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*/}
+            {/*<button type='button' onClick={() => this.deleteRouteRow(routeTableData.length + 1)}>delete row</button>*//*}
         </tr>)
         this.setState({ routeTableData: [...this.state.routeTableData, tableRow] })
         this.setState({ routeData: [...this.state.routeData, { schedule_stop_id: null, customer_id: null, stop_number: routeTableData.length + 1, }] })
@@ -384,7 +384,7 @@ class EditSchedule extends React.Component {
                             <option value={() => document.getElementById('new-vehicle').value} >
                                 New Vehicle
                         </option>
-                            {/*<option value='newVehicle'>New Vehicle</option>*/}
+                            {/*<option value='newVehicle'>New Vehicle</option>*//*}
                         </select><br /><label htmlFor='new-vehicle'>new vehicle</label><br />
                         <input id='new-vehicle' onChange={this.handleVehicleChange} ></input><br /><br />
                     DROP OFF INFO:<br />
@@ -394,7 +394,7 @@ class EditSchedule extends React.Component {
                             name='comment'
                             value={this.state.selectedDropOffInfo}
                         ></textarea><br /><br />
-                    ROUTE:<br /> {/*drop down of number for each route_id from fetched data.*/}
+                    ROUTE:<br /> {/*drop down of number for each route_id from fetched data.*//*}
                         <select id='selectRoute' onChange={this.handleRouteChange}>
                             <option value={this.state.scheduleData && this.state.scheduleData[0].route_id} selected disabled hidden>{this.state.scheduleData && this.state.scheduleData.route_id}</option>
                             {routeOptions}
@@ -423,4 +423,4 @@ class EditSchedule extends React.Component {
 }
 
 
-export default EditSchedule;
+export default EditSchedule;*/
