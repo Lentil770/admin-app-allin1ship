@@ -456,7 +456,7 @@ class EditSchedule extends React.Component {
           <option value="" selected disabled hidden>
             Choose Schedule for driver:
           </option>
-          {this.renderOptions("driver")}
+          {this.renderOptions("driver", "username")}
         </select>
         {dataFetched ? (
           <div>
@@ -486,7 +486,7 @@ class EditSchedule extends React.Component {
               >
                 {selectedSchedule}
               </option>
-              {this.renderOptions("driver")}
+              {this.renderOptions("driver", "username")}
               {/*<option value={() => document.getElementById("new-driver").value}>
                 New Driver
               </option>*/}
