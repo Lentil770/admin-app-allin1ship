@@ -11,6 +11,7 @@
 
 import React from "react";
 import axios from "axios";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 /*
 function delay() {
   setTimeout(() => { console.log('delayt') }, 500)
@@ -287,6 +288,25 @@ class EditSchedule extends React.Component {
     })
   };
 
+  handleOnDragEnd = (result) => {
+    console.log('handleondragend', result);
+    if (!result.destination) return;
+    const stopsArray = this.state.scheduleData.stopsData;
+    const [reorderedStop] = stopsArray.splice(result.source.index, 1);
+    for (let i=0;i<stopsArray.length;i++) {
+      if (stopsArray[i].stop_number > result.source.index+1 && stopsArray[i].stop_number <= result.destination.index+1) {
+        stopsArray[i].stop_number --
+      } else if (stopsArray[i].stop_number < result.source.index+1 && stopsArray[i].stop_number >= result.destination.index+1) {
+        stopsArray[i].stop_number ++
+      } else {
+        console.log('stop number not changing');
+      }
+    }
+    reorderedStop.stop_number = result.destination.index+1;
+    stopsArray.splice(result.destination.index, 0, reorderedStop);
+    console.log(stopsArray);
+  }
+
   //multipurpose change schedulechange individual key/values
   handleChange = (key, value) => {
     console.log(
@@ -398,34 +418,44 @@ class EditSchedule extends React.Component {
     for (let i = 0; i < stopsData.length; i++) {
       //console.log("loop", i);
       let tableRow = (
-        <tr key={'row' + i}>
-          <td id={`stopNumber${stopsData[i].stop_number}`}>
-            {stopsData[i].stop_number}
-          </td>
-          <td id={stopsData[i].stop_number}>
-            <select id={`customerSelect${stopsData[i].stop_number}`} onChange={(e) => this.handleCustomerChange(i, parseInt(e.target.value))}>
-              <option key="0" value={stopsData[i].customer_id}>
-                {stopsData[i].customer_name}
-              </option>
-              {this.renderOptions('customer', 'customer_id', 'customer_name')}
-            </select>
-          </td>
-          <td>
-            <textarea
-              onChange={(e) => this.handleTaskChange(i, e.target.value)}
-              rows="3"
-              cols="35"
-              id={`tasks${stopsData[i].stop_number}`}
-              defaultValue={this.renderTasks(stopsData[i].tasks)}
-              name={`taskTextArea${stopsData[i].stop_number}`}
-            ></textarea>
-          </td>
-          <input
-            type="button"
-            onClick={(e) => this.deleteStopRow(e, stopsData[i].stop_number)}
-            value="delete row"
-          />
-        </tr>
+        <Draggable key={'row' + i} draggableId={'row' + i} index={i}>
+          {(provided) => (
+            <tr 
+              //key={'row' + i}
+              ref={provided.innerRef} 
+              {...provided.draggableProps} 
+              {...provided.dragHandleProps}
+            >
+              <td id={`stopNumber${stopsData[i].stop_number}`}>
+                {stopsData[i].stop_number}
+              </td>
+              <td id={stopsData[i].stop_number}>
+                <select id={`customerSelect${stopsData[i].stop_number}`} onChange={(e) => this.handleCustomerChange(i, parseInt(e.target.value))}>
+                  <option key="0" value={stopsData[i].customer_id}>
+                    {stopsData[i].customer_name}
+                  </option>
+                  {this.renderOptions('customer', 'customer_id', 'customer_name')}
+                </select>
+              </td>
+              <td>
+                <textarea
+                  onChange={(e) => this.handleTaskChange(i, e.target.value)}
+                  rows="3"
+                  cols="35"
+                  id={`tasks${stopsData[i].stop_number}`}
+                  defaultValue={this.renderTasks(stopsData[i].tasks)}
+                  name={`taskTextArea${stopsData[i].stop_number}`}
+                ></textarea>
+              </td>
+              <input
+                type="button"
+                onClick={(e) => this.deleteStopRow(e, stopsData[i].stop_number)}
+                value="delete row"
+              />
+            </tr>
+          )}
+        </Draggable>
+        
       );
       tableRows.push(tableRow);
     }
@@ -599,7 +629,16 @@ class EditSchedule extends React.Component {
                 </tr>
               </thead>
               {/**renders the table of all the stops and their tasks */}
-              <tbody>{this.renderTable()}</tbody>
+              <DragDropContext onDragEnd={this.handleOnDragEnd}>
+                <Droppable droppableId='stops'>
+                  {(provided) => (
+                    <tbody {...provided.droppableProps} ref={provided.innerRef} className='stops'>
+                      {this.renderTable()}
+                      {provided.placeholder}
+                    </tbody>
+                  )}
+                </Droppable>
+              </DragDropContext>
             </table>
             <button onClick={this.addStopRow}>add row</button>
             <br />
