@@ -4,6 +4,7 @@ import { checkIfScheduleExists } from '../functions/checkDB';
 
 class CreateSchedule extends React.Component {
     state = {
+        submitDisabled: false,
         newScheduleNumber: '_',
         drivers: null,
         routes: [{
@@ -19,6 +20,7 @@ class CreateSchedule extends React.Component {
         selectedVehicle: null,
         routeTableData: [],
         selectedDropOffInfo: 'Thank you for the hard work today, it is greatly appreciated. You’re the front line workers in our company and your hard work shows! Please park the van near the office. If you cannot find parking you can always use the driveway at 740 Montgomery St (The driveway is narrow so just be alert). Rest up, looking forward to seeing you at the next drive!',
+        postedStops: 0,
         customersList: (givenData) => givenData && givenData.map((customer) => 
             <option key={customer.customer_id} value={customer.customer_id} >{customer.customer_name}</option>
             )
@@ -242,6 +244,8 @@ class CreateSchedule extends React.Component {
             body: JSON.stringify(postStopData)
         }).then((response) => {
             if(response.ok) {
+                this.setState({postedStops: this.state.postedStops+1})
+                console.log(this.state.postedStops);
                 return response.json()
             }
             else {throw new Error(response.statusText) }
@@ -250,7 +254,11 @@ class CreateSchedule extends React.Component {
             this.postStopTask(stopData.tasks)
             return response.json();*/
     
-        }).then(json => this.postStopTask(document.getElementById(`tasks${i+1}`).value, json))
+        }).then(json => {
+            this.postStopTask(document.getElementById(`tasks${i+1}`).value, json)
+            console.log(this.state.postedStops, this.state.routeTableData.length);
+            this.state.postedStops>=this.state.routeTableData.length && alert('schedule successfully posted')
+        })
     }
 
 
@@ -272,11 +280,10 @@ class CreateSchedule extends React.Component {
         }).then((response) => {
             //for each row in state.routeStopsData
             if (response.ok) {
-                
                 for (let i=0;i<this.state.routeTableData.length;i++) {
                     this.postScheduleStops(i)
                 }
-                alert('schedule successfully posted')
+                this.setState({submitDisabled: false})
         }
         })
     }
@@ -284,6 +291,7 @@ class CreateSchedule extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
+        this.setState({submitDisabled: true})
         if (!window.confirm('Please confirm if you are ready to submit schedule?')) return;
 
         checkIfScheduleExists(this.state.selectedDriver, this.state.selectedDate).then(res => {
@@ -566,7 +574,7 @@ class CreateSchedule extends React.Component {
                     </table><br/>
 
 
-                    <button type='submit' style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/>
+                    <button type='submit' disabled={this.state.submitDisabled} style={{color: 'white', backgroundColor: 'black', width: 300}}>SUBMIT</button><br/>
                 </form>
                 
                 {/*<Link to='/create-route'><button>CREATE NEW ROUTE</button></Link>*/}

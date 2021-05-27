@@ -147,35 +147,59 @@ class EditSchedule extends React.Component {
     let newStopCounter = 0;
     const { scheduleData } = this.state;
     this.setState({ deletedTasks: 0, stopsDeleted: false })
-    this.deleteStopTasks().then((res1) => {
+    try {
+      this.deleteStopTasks().then((res1) => {
 
-      console.log("then after deletestoptasks", res1);
-      this.deleteStops().then((res2) => {
-        console.log("then after deletestops", res2);
-        this.editSchedule().then((resedit) => {
-          console.log('aftereditschedule,', resedit);
-          for (let i = 0; i < scheduleData.stopsData.length; i++) {
-            this.postNewStop(i).then((res3) => {
-              console.log("then after postnewstop", res3);
-              console.log("res3data schedstopids", res3.data);
-              for (let ii = 0; ii < scheduleData.stopsData[i].tasks.length; ii++) {
-                //need to call it with returned stopId. c\tes if this works...
-                this.postNewTask(res3.data, scheduleData.stopsData[i].tasks[ii].task).then((resNewTask) => {
-                  newStopCounter++
-                  if (newStopCounter >= scheduleData.stopsData.length) alert('success!')
-                })
-
-              }
-            }).then(() => {
-              console.log("then nmot after postnewstops");
-            })
-          }
-        })
-      }).catch((err)=> console.log(err))
-
-    }).catch((err) => {
-      console.log('eror', err);
-    })
+        console.log("then after deletestoptasks", res1);
+        try {
+          this.deleteStops().then((res2) => {
+            console.log("then after deletestops", res2);
+            try {
+              this.editSchedule().then((resedit) => {
+                console.log('aftereditschedule,', resedit);
+                for (let i = 0; i < scheduleData.stopsData.length; i++) {
+                  try {
+                    this.postNewStop(i).then((res3) => {
+                      console.log("then after postnewstop", res3);
+                      console.log("res3data schedstopids", res3.data);
+                      newStopCounter++
+                      console.log(newStopCounter, scheduleData.stopsData.length);
+                      if (newStopCounter >= scheduleData.stopsData.length) alert('success!')
+                      for (let ii = 0; ii < scheduleData.stopsData[i].tasks.length; ii++) {
+                        //need to call it with returned stopId. c\tes if this works...
+                        try {
+                          this.postNewTask(res3.data, scheduleData.stopsData[i].tasks[ii].task).then((resNewTask) => {
+                          })
+                        }
+                        catch {
+                          alert('error posting tasks')
+                        }
+                      }
+                    }).then(() => {
+                      console.log("then nmot after postnewstops");
+                    })
+                  }
+                  catch {
+                    alert('errir posting stops')
+                  }
+                }
+              })
+            }
+            catch {
+              alert('error editing schedule')
+            }
+          }).catch((err) => console.log(err))
+        }
+        catch {
+          alert('error deleting stops')
+        }
+      }).catch((err) => {
+        console.log('eror', err);
+      })
+    }
+    catch (err) {
+      alert('error deleting tasks')
+    }
     /*
     //.then()
       this.deleteStops()
@@ -293,16 +317,16 @@ class EditSchedule extends React.Component {
     if (!result.destination) return;
     const stopsArray = this.state.scheduleData.stopsData;
     const [reorderedStop] = stopsArray.splice(result.source.index, 1);
-    for (let i=0;i<stopsArray.length;i++) {
-      if (stopsArray[i].stop_number > result.source.index+1 && stopsArray[i].stop_number <= result.destination.index+1) {
-        stopsArray[i].stop_number --
-      } else if (stopsArray[i].stop_number < result.source.index+1 && stopsArray[i].stop_number >= result.destination.index+1) {
-        stopsArray[i].stop_number ++
+    for (let i = 0; i < stopsArray.length; i++) {
+      if (stopsArray[i].stop_number > result.source.index + 1 && stopsArray[i].stop_number <= result.destination.index + 1) {
+        stopsArray[i].stop_number--
+      } else if (stopsArray[i].stop_number < result.source.index + 1 && stopsArray[i].stop_number >= result.destination.index + 1) {
+        stopsArray[i].stop_number++
       } else {
         console.log('stop number not changing');
       }
     }
-    reorderedStop.stop_number = result.destination.index+1;
+    reorderedStop.stop_number = result.destination.index + 1;
     stopsArray.splice(result.destination.index, 0, reorderedStop);
     console.log(stopsArray);
   }
@@ -376,7 +400,7 @@ class EditSchedule extends React.Component {
       if (!scheduleData.stopsData[stopIndex].tasks) return
     }
     //const { scheduleData, customerList } = this.state;
-    
+
     this.setState({ scheduleData });
   };
 
@@ -420,10 +444,10 @@ class EditSchedule extends React.Component {
       let tableRow = (
         <Draggable key={'row' + i} draggableId={'row' + i} index={i}>
           {(provided) => (
-            <tr 
+            <tr
               //key={'row' + i}
-              ref={provided.innerRef} 
-              {...provided.draggableProps} 
+              ref={provided.innerRef}
+              {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
               <td id={`stopNumber${stopsData[i].stop_number}`}>
@@ -455,7 +479,7 @@ class EditSchedule extends React.Component {
             </tr>
           )}
         </Draggable>
-        
+
       );
       tableRows.push(tableRow);
     }
@@ -464,10 +488,10 @@ class EditSchedule extends React.Component {
   //renders list of drivers as <options> for dropdown.
 
 
-//simple func to render tasks in textbox on each new line
+  //simple func to render tasks in textbox on each new line
   renderTasks = (tasks) => {
     //console.log(tasks);
-  //  console.log('resnder tasks');
+    //  console.log('resnder tasks');
     if (!tasks) return '';
     //console.log('tasks didnt return, is rendering');
     //putting new line between tasks (notbefore the first task)
@@ -476,7 +500,7 @@ class EditSchedule extends React.Component {
     return returnValue;
   };
 
-//renders list of option tags with given value from state array, option for multiple params to allow dif options.
+  //renders list of option tags with given value from state array, option for multiple params to allow dif options.
   renderOptions = (type, typeB = type, typeC = null) => {
     //console.log(type, typeB, typeC);
     const returnValue = this.state[`${type}List`] ? (

@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 
 class DisplayFeedback extends React.Component {
     state = {
@@ -61,3 +61,5 @@ class DisplayFeedback extends React.Component {
 
 
 export default DisplayFeedback;
+
+not used anymore*/
