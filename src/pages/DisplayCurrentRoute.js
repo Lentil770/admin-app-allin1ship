@@ -98,7 +98,7 @@ class DisplayCurrentRoute extends React.Component {
             <td className='currentRouteTd' >{stop.completion_status ? stop.completion_status : 'incomplete'}</td>
         </tr>            
         )
-
+ 
         const todaysDate = new Date().toISOString().split('T')[0];
 
         return <div style={{padding: '15px'}}>            
