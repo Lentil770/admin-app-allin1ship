@@ -1,6 +1,7 @@
 import React from 'react';
 
 import '../style/displayCurrentRoute.css';
+import { formatTime } from '../functions/stringFunctions';
 
 class DisplayCurrentRoute extends React.Component {
     state = {
@@ -75,10 +76,12 @@ class DisplayCurrentRoute extends React.Component {
         this.setState({selectedDate}, this.fetchRoute(this.state.selectedDriver, selectedDate))
     }
 
+    
     render() {
         const { routeData } = this.state;
 
         routeData && routeData.sort((a, b) => a.stop_number - b.stop_number);
+
 
         const optionsDrivers = this.state.drivers && this.state.drivers.map((driver) => 
             <option key={driver.username}>{driver.username}</option>
@@ -90,8 +93,8 @@ class DisplayCurrentRoute extends React.Component {
             <td className='currentRouteTd' >{stop.customer_name}</td>
             <td className='currentRouteTd' >{stop.number_packages ? stop.number_packages : 'n/a'}</td>
             <td className='currentRouteTd' >{stop.feedback ? stop.feedback : 'n/a' }</td>
-            <td className='currentRouteTd' >{stop.check_in_time ? stop.check_in_time.substring(11, 19) : 'n/a'}</td>
-            <td className='currentRouteTd' >{stop.check_out_time ? stop.check_out_time.substring(11, 19) : 'n/a' }</td>
+            <td className='currentRouteTd' >{stop.check_in_time ? formatTime(stop.check_in_time) : 'n/a'}</td>
+            <td className='currentRouteTd' >{stop.check_out_time ? formatTime(stop.check_out_time)/*.substring(11, 19)*/ : 'n/a' }</td>
             <td className='currentRouteTd' >{stop.completion_status ? stop.completion_status : 'incomplete'}</td>
         </tr>            
         )
@@ -116,7 +119,7 @@ class DisplayCurrentRoute extends React.Component {
                         <p>Vehicle: {routeData[0].vehicle}</p>
                         <p>Route: {routeData[0].route_name}</p>
                         <p>Dropoff Info: {routeData[0].dropoff_info}</p>
-                        <p>Start Time: {routeData[0].start_time ? routeData[0].start_time.substring(11, 19) : 'Route Not Started'}</p>
+                        <p>Start Time: {routeData[0].start_time ? formatTime(routeData[0].start_time) : 'No start time'}</p>
                     </div>
                     }
                     <br/>

@@ -1,18 +1,18 @@
 import React from "react";
-import TopBar from "./components/topBar";
-import CreateSchedule from "./components/CreateSchedule";
-import CreateRoute from "./components/CreateRoute";
-import AddCustomer from "./components/AddCustomer";
-import AddDriver from "./components/AddDriver";
-import AddVehicle from "./components/AddVehicle";
-import EditCustomer from "./components/EditCustomer";
-import EditSchedule from "./components/EditScheduleB";
-import EditDefaultRoute from "./components/EditDefaultRoute";
+import TopBar from "./pages/topBar";
+import CreateSchedule from "./pages/CreateSchedule";
+import CreateRoute from "./pages/CreateRoute";
+import AddCustomer from "./pages/AddCustomer";
+import AddDriver from "./pages/AddDriver";
+import AddVehicle from "./pages/AddVehicle";
+import EditCustomer from "./pages/EditCustomer";
+import EditSchedule from "./pages/EditScheduleB";
+import EditDefaultRoute from "./pages/EditDefaultRoute";
 import { Route } from "react-router-dom";
-import DisplayFeedback from "./components/DisplayFeedback";
-import DisplayTimestamps from "./components/DisplayTimestamps";
-import DisplayStartTimes from "./components/DisplayStartTimes";
-import DisplayCurrentRoute from "./components/DisplayCurrentRoute";
+import DisplayFeedback from "./pages/DisplayFeedback";
+import DisplayTimestamps from "./pages/DisplayTimestamps";
+import DisplayStartTimes from "./pages/DisplayStartTimes";
+import DisplayCurrentRoute from "./pages/DisplayCurrentRoute";
 
 //admin GUI for database, to add schedules routes (and eventually customers) to database!
 
