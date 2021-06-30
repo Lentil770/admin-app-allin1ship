@@ -55,7 +55,7 @@ class EditCustomer extends React.Component {
         console.log(customer);
         customer && renderData.push(<tr>
             <td><input onChange={(e) => this.handleChange('customer_name', e)} value={customer.customer_name} /></td>
-            <td><input onChange={(e) => this.handleChange('address', e)} value={customer.Address} /></td>
+            <td><input onChange={(e) => this.handleChange('address', e)} value={customer.address} /></td>
             <td><input onChange={(e) => this.handleChange('location', e)} value={customer.location} /></td>
             <td><input onChange={(e) => this.handleChange('contact_name', e)} value={customer.contact_name} /></td>
             <td><input onChange={(e) => this.handleChange('contact_number', e)} value={customer.contact_number} /></td>
